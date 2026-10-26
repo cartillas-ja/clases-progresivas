@@ -206,10 +206,66 @@
   .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:80; background:var(--navy-900); color:#fff; font-size:13px; padding:11px 18px; border-radius:11px; box-shadow:0 12px 30px -8px rgba(0,0,0,.5); opacity:0; transition:opacity .2s, transform .2s}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
 
+  .loginhint{font-family:var(--mono); font-size:8px; letter-spacing:.04em; color:#8fa3c8; text-transform:none; margin-left:6px}
+
+  /* pestañas */
+  .tabs{display:flex; gap:4px; margin:0 0 16px; border-bottom:1px solid var(--line); overflow-x:auto}
+  .tab{background:none; border:none; padding:10px 15px; font-size:13px; font-weight:600; color:var(--ink-soft); border-bottom:2px solid transparent; white-space:nowrap}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--ink); border-bottom-color:var(--rojo)}
+
+  /* zona (campo) */
+  .chip-cls.zona{font-family:var(--disp); font-weight:800; font-size:14px; letter-spacing:.02em}
+  .zdot{width:9px; height:9px; border-radius:50%; background:var(--oro); box-shadow:0 0 0 3px rgba(242,183,5,.2)}
+  .clubrow{display:flex; align-items:center; gap:10px; padding:11px 15px; border-top:1px solid var(--line); background:#fff}
+  .clubrow .cinfo{flex:1; min-width:0}
+  .clubrow .cinfo b{font-size:13px; font-weight:600}
+  .clubrow .cinfo span{display:block; font-size:11px; color:var(--ink-soft); font-family:var(--mono)}
+  .mini.del{border-color:rgba(214,24,10,.35); color:var(--rojo-700); background:#fff; font-size:13px; padding:6px 9px; flex:none}
+  .mini.del:hover{background:rgba(214,24,10,.08)}
+
+  /* credenciales */
+  .credwarn{padding:13px 15px; font-size:12.5px; color:#6a5a1e; background:rgba(242,183,5,.12); line-height:1.5}
+  .credlist{display:block}
+  .cred{display:flex; flex-direction:column; align-items:flex-end; font-family:var(--mono); line-height:1.3}
+  .cred b{font-size:12.5px; color:var(--ink)}
+  .cred span{font-size:10.5px; color:var(--ink-soft)}
+  .mini.acc{border:none; background:linear-gradient(180deg,#3aa0e6,#1f7ae0); color:#fff; flex:none}
+
+  /* acciones dentro del acordeón del director */
+  .kacts{display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line)}
+  .noacc{font-size:11px; opacity:.6}
+
+  /* bandas comunes / avanzada en la cartilla */
+  .cart-band{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:12px 16px; margin-top:2px;
+    font-family:var(--disp); font-weight:800; font-size:16px; letter-spacing:.03em; color:#fff}
+  .cart-band small{font-family:var(--mono); font-weight:400; font-size:10px; letter-spacing:.02em; opacity:.92; text-align:right}
+  .cart-band.com{background:linear-gradient(100deg,#2c536f,#17384d)}
+  .cart-band.av{background:linear-gradient(100deg,var(--ambar),#9a5e00)}
+
+  /* checkboxes de clases (modal consejero) */
+  .chk-grid{display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+  .chk-line{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; color:var(--ink); text-transform:none; letter-spacing:0; margin:0}
+  .chk-line input{width:auto; flex:none}
+  .chk-line i{width:10px; height:10px; border-radius:50%; flex:none}
+  .chk-line .edadtag{margin-left:auto; font-family:var(--mono); font-size:9px; color:var(--ink-soft)}
+
+  /* caja de acceso opcional (modal conquistador) */
+  .credbox{background:rgba(31,122,224,.05); border:1px solid rgba(31,122,224,.18); border-radius:11px; padding:11px 12px 2px; margin-bottom:6px}
+  .credbox-tit{font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:#1f5fae; margin:0 0 9px 2px}
+  .hint{font-family:var(--mono); font-size:9px; letter-spacing:.02em; color:var(--ink-soft); text-transform:none; font-weight:400; margin-left:5px}
+  .mnote{font-size:13px; color:var(--ink-soft); margin:0 0 14px; line-height:1.5}
+
+  /* hero conquistador */
+  #conq-hero .hinfo{position:relative; z-index:1}
+  .animo{margin-top:9px; display:inline-block; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); color:#fff; font-weight:600; font-size:12.5px; padding:6px 12px; border-radius:999px}
+
   @media (max-width:640px){
     .chrome .me .nm{display:none}
     .phead .act{width:100%}
     .secrow .sl{width:96px}
+    .chk-grid{grid-template-columns:1fr}
+    .cart-band{font-size:14px}
   }
 </style>
 </head>
@@ -265,12 +321,12 @@
       <div class="field"><label>Distrito</label>
         <div class="inp"><input id="rg-distrito" type="text" placeholder="Distrito del club"></div></div>
       <div class="field"><label>Zona</label>
-        <div class="inp"><input id="rg-zona" type="text" placeholder="Zona del club"></div></div>
+        <div class="inp"><select id="rg-zona"></select></div></div>
       <div class="field"><label>Asociación</label>
         <div class="inp"><input id="rg-asoc" type="text" placeholder="Asociación / Misión" value="Asociación Centro Occidental"></div></div>
       <div class="field"><label>Usuario</label>
         <div class="inp"><input id="rg-user" type="text" placeholder="elige un usuario"></div></div>
-      <div class="field"><label>Contraseña</label>
+      <div class="field"><label>Contraseña <span class="loginhint">mínimo 6 caracteres</span></label>
         <div class="inp"><input id="rg-pass" type="password" placeholder="elige una contraseña"></div></div>
       <button class="btn-main" onclick="doRegister()">Crear mi cuenta</button>
       <div class="err" id="reg-err"></div>
@@ -300,7 +356,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, query, where }
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const CARTILLAS = {
@@ -1732,6 +1788,9 @@ const firebaseConfig = {
   "appId": "1:29679264612:web:fe3d304985ac4e8dc1d071"
 };
 
+/* zonas oficiales de la Asociación Centro Occidental */
+const ZONAS = ['Urabá Norte','Urabá Sur','Bajo Cauca','Norte de Medellín','Occidente de Medellín'];
+
 const fbApp  = initializeApp(firebaseConfig);
 const auth   = getAuth(fbApp);
 const db     = getFirestore(fbApp);
@@ -1745,10 +1804,26 @@ const emailOf = u => String(u).trim().toLowerCase() + DOMAIN;
 /* ---------- util ---------- */
 const $=s=>document.querySelector(s);
 const el=(t,p={})=>Object.assign(document.createElement(t),p);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const iniciales=n=>String(n||'').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
 const claseInfo=id=>CARTILLAS.clases.find(c=>c.id===id);
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2300); }
 function loginErr(m,ok){ const e=$('#login-err'); e.style.color=ok?'#9fe3b0':''; e.textContent=m; }
+function credErr(e){
+  if(e.code==='auth/email-already-in-use') return 'Ese usuario ya existe, elige otro.';
+  if(e.code==='auth/weak-password') return 'La contraseña debe tener mínimo 6 caracteres.';
+  if(e.code==='auth/network-request-failed') return 'Sin conexión. Revisa tu internet.';
+  return 'No se pudo guardar. Intenta de nuevo.';
+}
+function nombresClases(ids){ return (ids||[]).map(id=>{const c=claseInfo(id);return c?c.nombre:'';}).filter(Boolean).join(', '); }
+function mensajeAnimo(pct){
+  if(pct>=100) return '¡Cartilla completa! Listo para tu investidura 🎉';
+  if(pct>=76)  return '¡Ya casi lo logras, excelente trabajo! 🌟';
+  if(pct>=51)  return '¡Lo estás logrando, sigue firme! 🔥';
+  if(pct>=26)  return '¡Vas muy bien, no te detengas! 💪';
+  if(pct>=1)   return '¡Buen comienzo, tú puedes lograrlo!';
+  return '¡Comienza tu aventura, tú puedes! 🚩';
+}
 
 /* progreso */
 const hojas=r=>(r.subrequisitos&&r.subrequisitos.length)?r.subrequisitos.map(s=>s.id):[r.id];
@@ -1759,6 +1834,7 @@ function progClase(cid,p){ const c=claseInfo(cid); let t=0,d=0; if(c)c.secciones
 let SESSION=null;
 const state={clubes:[],usuarios:[],conquistadores:[]};
 let unsub=[];
+let CAMPO_TAB='panel', CLUB_TAB='gestion';
 function clearListeners(){ unsub.forEach(f=>{try{f()}catch(e){}}); unsub=[]; }
 function setupListeners(){
   clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[];
@@ -1799,8 +1875,11 @@ async function afterAuth(fbUser){
     if(p.estado==='rechazado'){ await signOut(auth); loginErr('Tu solicitud fue rechazada. Contacta al director de campo.'); return; }
     SESSION={id:uid, ...p}; setupListeners(); enterApp(); return;
   }
+  /* conquistador: primero por id = uid (modelo antiguo), luego por campo authUid (modelo nuevo) */
   snap=await getDoc(doc(db,'conquistadores',uid));
   if(snap.exists()){ SESSION={id:uid, rol:'conquistador', ...snap.data()}; setupListeners(); enterApp(); return; }
+  const qs=await getDocs(query(collection(db,'conquistadores'),where('authUid','==',uid)));
+  if(!qs.empty){ const d=qs.docs[0]; SESSION={id:d.id, rol:'conquistador', ...d.data()}; setupListeners(); enterApp(); return; }
   await signOut(auth); loginErr('No encontramos tu perfil. Pídele a tu director que te registre.');
 }
 
@@ -1818,6 +1897,7 @@ async function doLogin(){
         return; // onAuthStateChanged entra solo
       }catch(e2){
         if(e2.code==='auth/email-already-in-use'){ loginErr('Contraseña incorrecta.'); }
+        else if(e2.code==='auth/weak-password'){ loginErr('La contraseña debe tener mínimo 6 caracteres.'); }
         else{ loginErr('No se pudo iniciar. Revisa tu conexión.'); }
         return;
       }
@@ -1836,16 +1916,16 @@ async function doRegister(){
   const distrito=$('#rg-distrito').value.trim(), zona=$('#rg-zona').value.trim(), asociacion=$('#rg-asoc').value.trim();
   const user=$('#rg-user').value.trim().toLowerCase(), pass=$('#rg-pass').value;
   const err=$('#reg-err'); err.textContent='';
-  if(!nombre||!club||!distrito||!zona||!asociacion||!user||!pass){ err.textContent='Completa todos los campos.'; return; }
+  if(!nombre||!club||!distrito||!zona||!asociacion||!user||!pass){ err.textContent='Completa todos los campos (incluida la zona).'; return; }
   if(user==='campo'){ err.textContent='Ese usuario está reservado, elige otro.'; return; }
-  if(pass.length<4){ err.textContent='La contraseña debe tener al menos 4 caracteres.'; return; }
+  if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
   err.textContent='Creando tu cuenta…';
   suppressAuth=true;
   try{
     const cred=await createUserWithEmailAndPassword(auth, emailOf(user), pass);
     const uid=cred.user.uid, clubId='c_'+uid.slice(0,10);
     await setDoc(doc(db,'clubes',clubId), {nombre:club, distrito, zona, asociacion, directorId:uid});
-    await setDoc(doc(db,'usuarios',uid), {usuario:user, rol:'club', nombre, estado:'pendiente', clubId});
+    await setDoc(doc(db,'usuarios',uid), {usuario:user, pass, rol:'club', nombre, estado:'pendiente', clubId});
     await signOut(auth);
     suppressAuth=false;
     showLogin();
@@ -1853,6 +1933,7 @@ async function doRegister(){
   }catch(e){
     suppressAuth=false;
     if(e.code==='auth/email-already-in-use') err.textContent='Ese usuario ya existe, elige otro.';
+    else if(e.code==='auth/weak-password') err.textContent='La contraseña debe tener mínimo 6 caracteres.';
     else if(e.code==='auth/network-request-failed') err.textContent='Sin conexión. Revisa tu internet.';
     else err.textContent='No se pudo crear la cuenta. Intenta de nuevo.';
   }
@@ -1897,7 +1978,17 @@ function render(){
   if(SESSION.rol==='conquistador') return renderConquistador();
 }
 
-/* ---- CAMPO ---- */
+/* barra de pestañas reutilizable */
+function tabBar(defs, current, onPick){
+  const bar=el('div',{className:'tabs'});
+  defs.forEach(([key,label])=>{
+    const b=el('button',{className:'tab'+(key===current?' on':''), textContent:label});
+    b.onclick=()=>onPick(key); bar.appendChild(b);
+  });
+  return bar;
+}
+
+/* ================= CAMPO ================= */
 function renderCampo(){
   const v=$('#view');
   const pend=state.usuarios.filter(u=>u.rol==='club'&&u.estado==='pendiente');
@@ -1907,43 +1998,106 @@ function renderCampo(){
   const avg=tt?Math.round(dd/tt*100):0;
   v.innerHTML=`
     <div class="phead"><div><h1>Panel del campo</h1><p>Asociación Centro Occidental</p></div>
-      <span class="rolechip">Aprueba directores y observa el progreso</span></div>
+      <span class="rolechip">Aprueba directores · observa el progreso · administra</span></div>
     <div class="kpis">
       <div class="kpi"><div class="n">${clubes.length}</div><div class="l">Clubes</div></div>
       <div class="kpi"><div class="n">${qAll.length}</div><div class="l">Conquistadores</div></div>
       <div class="kpi"><div class="n">${avg}<small>%</small></div><div class="l">Avance general</div></div>
       <div class="kpi hl gold"><div class="n">${pend.length}</div><div class="l">Directores por aprobar</div></div>
     </div>
-    <div class="card"><h2>Solicitudes de acceso <span class="mut">directores registrados</span></h2><div id="sols"></div></div>
-    <div class="card"><h2>Clubes y su progreso</h2><div id="campo-clubes"></div></div>`;
-  const sols=$('#sols');
+    <div id="campo-tabs"></div><div id="campo-body"></div>`;
+  $('#campo-tabs').appendChild(tabBar([['panel','Clubes y progreso'],['cred','Credenciales']], CAMPO_TAB, k=>{CAMPO_TAB=k; render();}));
+  if(CAMPO_TAB==='cred') return campoCred($('#campo-body'));
+
+  const body=$('#campo-body');
+  // solicitudes
+  const solCard=el('div',{className:'card'});
+  solCard.innerHTML='<h2>Solicitudes de acceso <span class="mut">directores registrados</span></h2><div id="sols"></div>';
+  body.appendChild(solCard);
+  const sols=solCard.querySelector('#sols');
   if(!pend.length) sols.innerHTML='<div class="empty">No hay solicitudes pendientes.</div>';
   else pend.forEach(u=>{
     const c=clubes.find(x=>x.id===u.clubId);
     const row=el('div',{className:'sol'});
     row.innerHTML=`<div class="av2">${iniciales(u.nombre)}</div>
-      <div class="info"><b>${u.nombre}</b><span>${c?c.nombre:''} · Distrito ${c?c.distrito:''} · Zona ${c?c.zona:''}</span></div>
+      <div class="info"><b>${esc(u.nombre)}</b><span>${esc(c?c.nombre:'')} · Distrito ${esc(c?c.distrito:'')} · ${esc(c?c.zona:'')}</span></div>
       <div class="acts"><button class="mini ap">Aprobar</button><button class="mini rj">Rechazar</button></div>`;
     row.querySelector('.ap').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'activo'}).then(()=>toast('Director aprobado'));
     row.querySelector('.rj').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'rechazado'}).then(()=>toast('Solicitud rechazada'));
     sols.appendChild(row);
   });
-  const cc=$('#campo-clubes');
+
+  // clubes agrupados por zona
+  const card=el('div',{className:'card'});
+  card.innerHTML='<h2>Clubes por zona <span class="mut">avance y administración</span></h2><div id="campo-clubes"></div>';
+  body.appendChild(card);
+  const cc=card.querySelector('#campo-clubes');
   if(!clubes.length){ cc.innerHTML='<div class="empty">Aún no hay clubes.</div>'; return; }
-  const t=el('table'); t.innerHTML='<thead><tr><th>Club</th><th>Distrito</th><th>Zona</th><th>Conq.</th><th>Avance</th></tr></thead>';
-  const tb=el('tbody');
-  clubes.forEach(c=>{
-    const qs=qAll.filter(q=>q.clubId===c.id);
-    let t2=0,d2=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); t2+=p.total; d2+=p.done;});
-    const pct=t2?Math.round(d2/t2*100):0;
-    const dir=state.usuarios.find(u=>u.id===c.directorId);
-    const est=dir&&dir.estado==='pendiente'?'<span class="badge bg-mut">pendiente</span>':'';
-    tb.appendChild(el('tr',{innerHTML:`<td><b>${c.nombre}</b> ${est}</td><td>${c.distrito||'—'}</td><td>${c.zona||'—'}</td><td>${qs.length}</td><td><div class="bar"><i style="width:${pct}%"></i></div></td>`}));
+  const zonasPresentes = ZONAS.filter(z=>clubes.some(c=>c.zona===z));
+  const otras = [...new Set(clubes.filter(c=>!ZONAS.includes(c.zona)).map(c=>c.zona||'Sin zona'))];
+  [...zonasPresentes, ...otras].forEach(z=>{
+    const grp=clubes.filter(c=>(c.zona||'Sin zona')===z);
+    if(!grp.length) return;
+    const g=el('div',{className:'clsgroup'});
+    g.innerHTML=`<div class="clsgh"><span class="chip-cls zona"><span class="zdot"></span>${esc(z)}</span><span class="mut">${grp.length} club${grp.length>1?'es':''}</span></div>`;
+    grp.forEach(c=>{
+      const qs=qAll.filter(q=>q.clubId===c.id);
+      let t2=0,d2=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); t2+=p.total; d2+=p.done;});
+      const pct=t2?Math.round(d2/t2*100):0;
+      const dir=state.usuarios.find(u=>u.id===c.directorId);
+      const est=dir&&dir.estado==='pendiente'?'<span class="badge bg-mut">pendiente</span>':'';
+      const row=el('div',{className:'clubrow'});
+      row.innerHTML=`<div class="cinfo"><b>${esc(c.nombre)}</b> ${est}<span>Distrito ${esc(c.distrito||'—')} · ${qs.length} conq.</span></div>
+        <span class="kbar"><i style="width:${pct}%;background:var(--oro)"></i></span><span class="kp">${pct}%</span>
+        <button class="mini del" title="Eliminar club">🗑</button>`;
+      row.querySelector('.del').onclick=()=>eliminarClub(c.id, c.nombre);
+      g.appendChild(row);
+    });
+    cc.appendChild(g);
   });
-  t.appendChild(tb); cc.appendChild(t);
 }
 
-/* ---- CLUB ---- */
+function campoCred(body){
+  const clubes=state.clubes;
+  if(!clubes.length){ body.innerHTML='<div class="card"><div class="empty">Aún no hay clubes.</div></div>'; return; }
+  const info=el('div',{className:'card'});
+  info.innerHTML='<div class="credwarn">🔒 Usuarios y contraseñas de cada club. Esta información es privada: consérvala con cuidado.</div>';
+  body.appendChild(info);
+  clubes.forEach(c=>{
+    const dir=state.usuarios.find(u=>u.id===c.directorId);
+    const cons=state.usuarios.filter(u=>u.rol==='consejero'&&u.clubId===c.id);
+    const qs=state.conquistadores.filter(q=>q.clubId===c.id);
+    const card=el('div',{className:'card'});
+    card.innerHTML=`<h2>${esc(c.nombre)} <span class="mut">${esc(c.zona||'')}</span></h2><div class="credlist"></div>`;
+    const list=card.querySelector('.credlist');
+    if(dir) credRow(list, dir.nombre, 'Director', dir.usuario, dir.pass);
+    cons.forEach(u=>credRow(list, u.nombre, 'Consejero · '+(nombresClases(u.clases)||'sin clases'), u.usuario, u.pass));
+    qs.forEach(q=>credRow(list, q.nombre, 'Conquistador · '+((claseInfo(q.clase)||{}).nombre||''), q.usuario, q.pass));
+    if(!dir && !cons.length && !qs.length) list.innerHTML='<div class="empty">Sin usuarios.</div>';
+    body.appendChild(card);
+  });
+}
+function credRow(container, nombre, tipo, usuario, pass, onAcceso){
+  const row=el('div',{className:'sol'});
+  const right = usuario
+    ? `<span class="cred"><b>${esc(usuario)}</b><span>clave: ${esc(pass||'—')}</span></span>`
+    : (onAcceso?`<button class="mini acc">+ Crear acceso</button>`:`<span class="cred"><span>sin acceso</span></span>`);
+  row.innerHTML=`<div class="av2">${iniciales(nombre)}</div><div class="info"><b>${esc(nombre)}</b><span>${esc(tipo)}</span></div>${right}`;
+  if(!usuario && onAcceso) row.querySelector('.acc').onclick=onAcceso;
+  container.appendChild(row);
+}
+
+async function eliminarClub(cid, nombre){
+  if(!confirm('¿Eliminar el club "'+nombre+'"?\n\nSe borrarán también su director, consejeros y conquistadores con todo su progreso. Esta acción no se puede deshacer.')) return;
+  try{
+    for(const u of state.usuarios.filter(u=>u.clubId===cid)) await deleteDoc(doc(db,'usuarios',u.id));
+    for(const q of state.conquistadores.filter(q=>q.clubId===cid)) await deleteDoc(doc(db,'conquistadores',q.id));
+    await deleteDoc(doc(db,'clubes',cid));
+    toast('Club eliminado');
+  }catch(e){ console.error(e); toast('No se pudo eliminar. Revisa tu conexión.'); }
+}
+
+/* ================= CLUB ================= */
 function renderClub(){
   const v=$('#view');
   const club=state.clubes.find(c=>c.id===SESSION.clubId);
@@ -1952,7 +2106,7 @@ function renderClub(){
   let tt=0,dd=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); tt+=p.total; dd+=p.done;});
   const avg=tt?Math.round(dd/tt*100):0;
   v.innerHTML=`
-    <div class="phead"><div><h1>Club ${club?club.nombre:''}</h1><p>${club?`Distrito ${club.distrito} · Zona ${club.zona} · ${club.asociacion}`:''}<br>${qs.length} conquistadores · ${cons.length} consejeros</p></div>
+    <div class="phead"><div><h1>Club ${esc(club?club.nombre:'')}</h1><p>${club?`Distrito ${esc(club.distrito)} · ${esc(club.zona)} · ${esc(club.asociacion)}`:''}<br>${qs.length} conquistadores · ${cons.length} consejeros</p></div>
       <span class="rolechip">Gestiona y observa</span>
       <div class="act"><button class="btn red" id="b-conq"><span class="pl">+</span> Conquistador</button>
         <button class="btn ghost" id="b-cons"><span class="pl">+</span> Consejero</button></div></div>
@@ -1961,10 +2115,16 @@ function renderClub(){
       <div class="kpi"><div class="n">${cons.length}</div><div class="l">Consejeros</div></div>
       <div class="kpi"><div class="n">${avg}<small>%</small></div><div class="l">Avance del club</div></div>
     </div>
-    <div class="card"><h2>Conquistadores por clase <span class="mut">toca un nombre para ver sus secciones</span></h2><div id="club-list"></div></div>
-    <div class="card"><h2>Consejeros</h2><div id="club-cons"></div></div>`;
+    <div id="club-tabs"></div><div id="club-body"></div>`;
   $('#b-conq').onclick=modalConq; $('#b-cons').onclick=modalConsejero;
-  const list=$('#club-list');
+  $('#club-tabs').appendChild(tabBar([['gestion','Gestión y progreso'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
+  if(CLUB_TAB==='cred') return clubCred($('#club-body'));
+
+  const body=$('#club-body');
+  const listCard=el('div',{className:'card'});
+  listCard.innerHTML='<h2>Conquistadores por clase <span class="mut">toca un nombre para ver sus secciones</span></h2><div id="club-list"></div>';
+  body.appendChild(listCard);
+  const list=listCard.querySelector('#club-list');
   if(!qs.length){ list.innerHTML='<div class="empty">Aún no has agregado conquistadores. Usa "+ Conquistador".</div>'; }
   else CARTILLAS.clases.forEach(cl=>{
     const grp=qs.filter(q=>q.clase===cl.id); if(!grp.length) return;
@@ -1973,26 +2133,78 @@ function renderClub(){
     grp.forEach(q=>{
       const p=progClase(q.clase,q.progreso||{});
       const wrap=el('div'); const btn=el('button',{className:'krow'});
-      btn.innerHTML=`<span class="chev">▸</span><span class="kn">${q.nombre}</span><span class="kbar"><i style="width:${p.pct}%;background:${cl.color}"></i></span><span class="kp">${p.pct}%</span>`;
+      const sinAcceso = q.usuario?'':'<span class="noacc" title="Sin acceso">🔑</span>';
+      btn.innerHTML=`<span class="chev">▸</span><span class="kn">${esc(q.nombre)} ${sinAcceso}</span><span class="kbar"><i style="width:${p.pct}%;background:${cl.color}"></i></span><span class="kp">${p.pct}%</span>`;
       const det=el('div',{className:'kdetail'});
       const secs=claseInfo(q.clase).secciones;
       [['comunes','Requisitos comunes',secs.filter(s=>!s.avanzada)],['avanzados','Requisitos avanzados',secs.filter(s=>s.avanzada)]].forEach(([cls,tit,lista])=>{
         if(!lista.length) return;
         let gt=0,gd=0; lista.forEach(s=>{const sp=progSec(s,q.progreso||{}); gt+=sp.total; gd+=sp.done;});
         det.appendChild(el('div',{className:'grphd '+cls,innerHTML:`${tit}<span class="gp">${gt?Math.round(gd/gt*100):0}%</span>`}));
-        lista.forEach(sec=>{ const sp=progSec(sec,q.progreso||{}); det.appendChild(el('div',{className:'secrow',innerHTML:`<span class="sl">${sec.nombre}</span><span class="sbar"><i style="width:${sp.pct}%;background:${cl.color}"></i></span><span class="sv">${sp.pct}%</span>`})); });
+        lista.forEach(sec=>{ const sp=progSec(sec,q.progreso||{}); det.appendChild(el('div',{className:'secrow',innerHTML:`<span class="sl">${esc(sec.nombre)}</span><span class="sbar"><i style="width:${sp.pct}%;background:${cl.color}"></i></span><span class="sv">${sp.pct}%</span>`})); });
       });
+      const acts=el('div',{className:'kacts'});
+      const bDel=el('button',{className:'mini rj',textContent:'Eliminar conquistador'});
+      bDel.onclick=()=>eliminarConquistador(q.id, q.nombre);
+      if(!q.usuario){ const bAcc=el('button',{className:'mini acc',textContent:'+ Crear acceso'}); bAcc.onclick=()=>modalAcceso(q); acts.appendChild(bAcc); }
+      acts.appendChild(bDel); det.appendChild(acts);
       btn.onclick=()=>{ const o=det.classList.toggle('open'); btn.querySelector('.chev').textContent=o?'▾':'▸'; };
       wrap.appendChild(btn); wrap.appendChild(det); g.appendChild(wrap);
     });
     list.appendChild(g);
   });
-  const cc=$('#club-cons');
+
+  const consCard=el('div',{className:'card'});
+  consCard.innerHTML='<h2>Consejeros</h2><div id="club-cons"></div>';
+  body.appendChild(consCard);
+  const cc=consCard.querySelector('#club-cons');
   if(!cons.length) cc.innerHTML='<div class="empty">Aún no hay consejeros. Usa "+ Consejero".</div>';
-  else cons.forEach(u=>{ const n=qs.filter(q=>q.consejeroId===u.id).length; cc.appendChild(el('div',{className:'sol',innerHTML:`<div class="av2">${iniciales(u.nombre)}</div><div class="info"><b>${u.nombre}</b><span>usuario: ${u.usuario} · ${n} niños</span></div>`})); });
+  else cons.forEach(u=>{
+    const n=qs.filter(q=>q.consejeroId===u.id).length;
+    const row=el('div',{className:'sol'});
+    row.innerHTML=`<div class="av2">${iniciales(u.nombre)}</div>
+      <div class="info"><b>${esc(u.nombre)}</b><span>${esc(nombresClases(u.clases)||'sin clases asignadas')} · ${n} niños</span></div>
+      <div class="acts"><button class="mini rj">Eliminar</button></div>`;
+    row.querySelector('.rj').onclick=()=>eliminarConsejero(u.id, u.nombre);
+    cc.appendChild(row);
+  });
 }
 
-/* ---- CONSEJERO ---- */
+function clubCred(body){
+  const cons=state.usuarios.filter(u=>u.rol==='consejero');
+  const qs=state.conquistadores;
+  const info=el('div',{className:'card'});
+  info.innerHTML='<div class="credwarn">🔒 Aquí ves los usuarios y contraseñas que has creado. Si un muchacho olvida la suya, consúltala aquí. Consérvala con cuidado.</div>';
+  body.appendChild(info);
+  const c1=el('div',{className:'card'});
+  c1.innerHTML='<h2>Consejeros</h2><div class="credlist"></div>';
+  const l1=c1.querySelector('.credlist');
+  if(!cons.length) l1.innerHTML='<div class="empty">Aún no hay consejeros.</div>';
+  else cons.forEach(u=>credRow(l1, u.nombre, nombresClases(u.clases)||'sin clases', u.usuario, u.pass));
+  body.appendChild(c1);
+  const c2=el('div',{className:'card'});
+  c2.innerHTML='<h2>Conquistadores</h2><div class="credlist"></div>';
+  const l2=c2.querySelector('.credlist');
+  if(!qs.length) l2.innerHTML='<div class="empty">Aún no hay conquistadores.</div>';
+  else qs.forEach(q=>credRow(l2, q.nombre, (claseInfo(q.clase)||{}).nombre||'', q.usuario, q.pass, ()=>modalAcceso(q)));
+  body.appendChild(c2);
+}
+
+async function eliminarConsejero(id, nombre){
+  if(!confirm('¿Eliminar al consejero "'+nombre+'"?\n\nSus conquistadores NO se borran, pero quedarán sin consejero asignado hasta que les asignes otro.')) return;
+  try{
+    for(const k of state.conquistadores.filter(q=>q.consejeroId===id)) await updateDoc(doc(db,'conquistadores',k.id),{consejeroId:null});
+    await deleteDoc(doc(db,'usuarios',id));
+    toast('Consejero eliminado');
+  }catch(e){ console.error(e); toast('No se pudo eliminar. Revisa tu conexión.'); }
+}
+async function eliminarConquistador(id, nombre){
+  if(!confirm('¿Eliminar al conquistador "'+nombre+'"?\n\nSe borrará todo su progreso. Esta acción no se puede deshacer.')) return;
+  try{ await deleteDoc(doc(db,'conquistadores',id)); toast('Conquistador eliminado'); }
+  catch(e){ console.error(e); toast('No se pudo eliminar. Revisa tu conexión.'); }
+}
+
+/* ================= CONSEJERO ================= */
 let CONS_SEL=null;
 function renderConsejero(){
   const v=$('#view');
@@ -2005,44 +2217,59 @@ function renderConsejero(){
   const sel=el('div',{className:'card'}); sel.innerHTML='<h2>Mis niños <span class="mut">toca para ver su cartilla</span></h2>';
   mis.forEach(q=>{ const ci=claseInfo(q.clase), p=progClase(q.clase,q.progreso||{});
     const row=el('button',{className:'krow'}); row.style.background=q.id===CONS_SEL?'rgba(15,143,209,.07)':'#fff';
-    row.innerHTML=`<span class="chip-cls" style="flex:1"><i style="background:${ci.color}"></i>${q.nombre} · ${ci.nombre}</span><span class="kbar"><i style="width:${p.pct}%;background:${ci.color}"></i></span><span class="kp">${p.pct}%</span>`;
+    row.innerHTML=`<span class="chip-cls" style="flex:1"><i style="background:${ci.color}"></i>${esc(q.nombre)} · ${ci.nombre}</span><span class="kbar"><i style="width:${p.pct}%;background:${ci.color}"></i></span><span class="kp">${p.pct}%</span>`;
     row.onclick=()=>{ CONS_SEL=q.id; renderConsejero(); }; sel.appendChild(row); });
   grid.appendChild(sel);
   const q=mis.find(x=>x.id===CONS_SEL);
   if(q) grid.appendChild(cartillaCard(q,true));
 }
 
-/* tarjeta de cartilla */
+/* tarjeta de cartilla (con separación comunes / avanzada) */
 function cartillaCard(q, editable){
   const ci=claseInfo(q.clase); const prog=q.progreso||(q.progreso={});
   const gp=progClase(q.clase,prog);
   const card=el('div',{className:'card'});
   card.innerHTML=`<div class="prtop"><div class="ring"><b>${gp.pct}%</b></div>
-    <div class="meta"><div class="k">Avance de la cartilla</div><h3>${ci.nombre}</h3><p>${gp.done} de ${gp.total} cumplidos · ${q.nombre}</p></div></div>`;
+    <div class="meta"><div class="k">Avance de la cartilla</div><h3>${ci.nombre}</h3><p>${gp.done} de ${gp.total} cumplidos · ${esc(q.nombre)}</p></div></div>`;
   card.querySelector('.ring').style.background=`conic-gradient(var(--oro) ${gp.pct}%, #e6dcc4 0)`;
-  ci.secciones.forEach(sec=>{
-    const sp=progSec(sec,prog); const blk=el('div',{className:'secblk'});
-    blk.innerHTML=`<div class="sechd"><b>${sec.nombre}${sec.avanzada?'<span class="av-tag">AVANZADA</span>':''}</b><span class="sp">${sp.pct}%</span></div><div class="secbar"><i style="width:${sp.pct}%"></i></div>`;
-    sec.requisitos.forEach(r=>{
-      if(r.subrequisitos&&r.subrequisitos.length){
-        const all=r.subrequisitos.every(s=>prog[s.id]);
-        const padre=el('div',{className:'rq'+(all?' isdone':'')});
-        padre.innerHTML=`<span class="chk ${editable?'':'ro'}">${all?'✓':''}</span><span class="rt">${r.texto}</span>`;
-        blk.appendChild(padre);
-        const sw=el('div',{className:'subrq'});
-        r.subrequisitos.forEach(s=>{ const on=!!prog[s.id]; const sr=el('div',{className:'srq'+(on?' isdone':'')+(editable?' ed':'')});
-          sr.innerHTML=`<span class="chk">${on?'✓':''}</span><span class="lbl">${s.etiqueta})</span><span class="rt">${s.texto}</span>`;
-          if(editable) sr.onclick=()=>toggle(q,s.id); sw.appendChild(sr); });
-        blk.appendChild(sw);
-      } else {
-        const on=!!prog[r.id]; const row=el('div',{className:'rq'+(on?' isdone':'')+(editable?' ed':'')});
-        row.innerHTML=`<span class="chk ${editable?'':'ro'}">${on?'✓':''}</span><span class="rt">${r.texto}</span>`;
-        if(editable) row.onclick=()=>toggle(q,r.id); blk.appendChild(row);
-      }
-    });
-    card.appendChild(blk);
-  });
+
+  const comunes=ci.secciones.filter(s=>!s.avanzada);
+  const avanzadas=ci.secciones.filter(s=>s.avanzada);
+  const banda=(txt,sub,cls)=>el('div',{className:'cart-band '+cls,innerHTML:`<span>${txt}</span><small>${sub}</small>`});
+
+  if(comunes.length){
+    let gt=0,gd=0; comunes.forEach(s=>{const sp=progSec(s,prog); gt+=sp.total; gd+=sp.done;});
+    card.appendChild(banda('Requisitos comunes', `${gt?Math.round(gd/gt*100):0}% · obligatorios para todos`, 'com'));
+    comunes.forEach(sec=>card.appendChild(seccionBlk(sec,prog,q,editable)));
+  }
+  if(avanzadas.length){
+    let gt=0,gd=0; avanzadas.forEach(s=>{const sp=progSec(s,prog); gt+=sp.total; gd+=sp.done;});
+    card.appendChild(banda('Requisitos de avanzada', `${gt?Math.round(gd/gt*100):0}% · para la clase avanzada`, 'av'));
+    avanzadas.forEach(sec=>card.appendChild(seccionBlk(sec,prog,q,editable)));
+  }
   return card;
+}
+function seccionBlk(sec,prog,q,editable){
+  const sp=progSec(sec,prog); const blk=el('div',{className:'secblk'});
+  blk.innerHTML=`<div class="sechd"><b>${esc(sec.nombre)}</b><span class="sp">${sp.pct}%</span></div><div class="secbar"><i style="width:${sp.pct}%"></i></div>`;
+  sec.requisitos.forEach(r=>{
+    if(r.subrequisitos&&r.subrequisitos.length){
+      const all=r.subrequisitos.every(s=>prog[s.id]);
+      const padre=el('div',{className:'rq'+(all?' isdone':'')});
+      padre.innerHTML=`<span class="chk ${editable?'':'ro'}">${all?'✓':''}</span><span class="rt">${esc(r.texto)}</span>`;
+      blk.appendChild(padre);
+      const sw=el('div',{className:'subrq'});
+      r.subrequisitos.forEach(s=>{ const on=!!prog[s.id]; const sr=el('div',{className:'srq'+(on?' isdone':'')+(editable?' ed':'')});
+        sr.innerHTML=`<span class="chk">${on?'✓':''}</span><span class="lbl">${esc(s.etiqueta)})</span><span class="rt">${esc(s.texto)}</span>`;
+        if(editable) sr.onclick=()=>toggle(q,s.id); sw.appendChild(sr); });
+      blk.appendChild(sw);
+    } else {
+      const on=!!prog[r.id]; const row=el('div',{className:'rq'+(on?' isdone':'')+(editable?' ed':'')});
+      row.innerHTML=`<span class="chk ${editable?'':'ro'}">${on?'✓':''}</span><span class="rt">${esc(r.texto)}</span>`;
+      if(editable) row.onclick=()=>toggle(q,r.id); blk.appendChild(row);
+    }
+  });
+  return blk;
 }
 function toggle(q,id){
   q.progreso=q.progreso||{}; q.progreso[id]=!q.progreso[id];
@@ -2050,22 +2277,25 @@ function toggle(q,id){
   updateDoc(doc(db,'conquistadores',q.id),{['progreso.'+id]: q.progreso[id]}).catch(e=>{ console.error(e); toast('No se pudo guardar. Revisa tu conexión.'); });
 }
 
-/* ---- CONQUISTADOR ---- */
+/* ================= CONQUISTADOR ================= */
 function renderConquistador(){
   const v=$('#view');
   const q=state.conquistadores.find(x=>x.id===SESSION.id)||SESSION;
   const ci=claseInfo(q.clase); if(!ci){ v.innerHTML='<div class="card"><div class="empty">Cargando…</div></div>'; return; }
   document.body.style.setProperty('--theme', ci.color);
   const gp=progClase(q.clase,q.progreso||{});
-  v.innerHTML=`<div class="phead"><div><h1>Mi progreso</h1><p>${q.nombre}</p></div><span class="rolechip">Solo lectura</span></div>`;
+  v.innerHTML=`<div class="phead"><div><h1>Mi progreso</h1><p>${esc(q.nombre)}</p></div><span class="rolechip">Solo lectura</span></div>`;
   const hero=el('div',{id:'conq-hero'});
   hero.style.background=`linear-gradient(135deg, ${ci.color}, color-mix(in srgb, ${ci.color} 60%, #10131a))`;
-  hero.innerHTML=`<div class="ring"><b>${gp.pct}%</b></div><div><div class="eyebrow">Mi clase</div><h2>${ci.nombre}</h2><p>${gp.done} de ${gp.total} requisitos cumplidos</p></div>`;
+  hero.innerHTML=`<div class="ring"><b>${gp.pct}%</b></div>
+    <div class="hinfo"><div class="eyebrow">Mi clase</div><h2>${ci.nombre}</h2>
+      <p>${gp.done} de ${gp.total} requisitos cumplidos</p>
+      <div class="animo">${mensajeAnimo(gp.pct)}</div></div>`;
   hero.querySelector('.ring').style.background=`conic-gradient(#fff ${gp.pct}%, rgba(255,255,255,.28) 0)`;
   v.appendChild(hero); v.appendChild(cartillaCard(q,false));
 }
 
-/* ---- MODALES ---- */
+/* ================= MODALES ================= */
 function modal(html){ $('#modal-root').innerHTML=`<div class="modal-bg"><div class="modal">${html}</div></div>`;
   $('#modal-root .modal-bg').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); }); }
 function closeModal(){ $('#modal-root').innerHTML=''; }
@@ -2073,13 +2303,16 @@ function closeModal(){ $('#modal-root').innerHTML=''; }
 function modalConq(){
   const opts=CARTILLAS.clases.map(c=>`<option value="${c.id}">${c.nombre} (${c.edad} años)</option>`).join('');
   const cons=state.usuarios.filter(u=>u.rol==='consejero');
-  const copt=cons.length?cons.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join(''):'<option value="">(sin consejeros aún)</option>';
+  const copt='<option value="">— Sin asignar por ahora —</option>'+cons.map(c=>`<option value="${c.id}">${esc(c.nombre)}${c.clases&&c.clases.length?' ('+esc(nombresClases(c.clases))+')':''}</option>`).join('');
   modal(`<h3>Agregar conquistador</h3><div class="body">
     <div class="mfield"><label>Nombre completo</label><input id="m-nombre" placeholder="Nombre del niño/a"></div>
     <div class="mfield"><label>Clase</label><select id="m-clase">${opts}</select></div>
     <div class="mfield"><label>Consejero</label><select id="m-cons">${copt}</select></div>
-    <div class="mfield"><label>Usuario</label><input id="m-user" placeholder="usuario para el niño"></div>
-    <div class="mfield"><label>Contraseña</label><input id="m-pass" placeholder="contraseña"></div>
+    <div class="credbox">
+      <div class="credbox-tit">Acceso del conquistador <span class="hint">opcional · lo puedes crear después</span></div>
+      <div class="mfield"><label>Usuario</label><input id="m-user" placeholder="usuario para el niño (opcional)"></div>
+      <div class="mfield"><label>Contraseña <span class="hint">mínimo 6 caracteres</span></label><input id="m-pass" placeholder="contraseña (opcional)"></div>
+    </div>
     <div class="merr" id="m-err"></div></div>
     <div class="foot"><button class="btn ghost" id="m-cancel">Cancelar</button><button class="btn red" id="m-ok">Agregar</button></div>`);
   $('#m-cancel').onclick=closeModal; $('#m-ok').onclick=saveConq;
@@ -2087,41 +2320,71 @@ function modalConq(){
 async function saveConq(){
   const nombre=$('#m-nombre').value.trim(), clase=$('#m-clase').value, consId=$('#m-cons').value;
   const user=$('#m-user').value.trim().toLowerCase(), pass=$('#m-pass').value; const err=$('#m-err');
-  if(!nombre||!user||!pass){ err.textContent='Completa nombre, usuario y contraseña.'; return; }
-  if(pass.length<4){ err.textContent='La contraseña debe tener al menos 4 caracteres.'; return; }
+  if(!nombre){ err.textContent='Escribe el nombre del conquistador.'; return; }
+  const quiereAcceso = user||pass;
+  if(quiereAcceso){
+    if(!user||!pass){ err.textContent='Para crear acceso escribe usuario y contraseña (o deja ambos vacíos).'; return; }
+    if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
+  }
   err.textContent='Guardando…'; $('#m-ok').disabled=true;
   try{
+    const data={nombre, clase, clubId:SESSION.clubId, consejeroId:consId||null, progreso:{}};
+    if(quiereAcceso){ const uid=await crearCuenta(user,pass); data.usuario=user; data.pass=pass; data.authUid=uid; }
+    await addDoc(collection(db,'conquistadores'), data);
+    closeModal(); toast(quiereAcceso?'Conquistador agregado con acceso':'Conquistador agregado (sin acceso aún)');
+  }catch(e){ $('#m-ok').disabled=false; err.textContent=credErr(e); }
+}
+
+function modalAcceso(q){
+  modal(`<h3>Crear acceso</h3><div class="body">
+    <p class="mnote">Acceso para <b>${esc(q.nombre)}</b> para que entre a ver su cartilla.</p>
+    <div class="mfield"><label>Usuario</label><input id="a-user" placeholder="usuario del niño" value="${esc(q.usuario||'')}"></div>
+    <div class="mfield"><label>Contraseña <span class="hint">mínimo 6 caracteres</span></label><input id="a-pass" placeholder="contraseña"></div>
+    <div class="merr" id="a-err"></div></div>
+    <div class="foot"><button class="btn ghost" id="a-cancel">Cancelar</button><button class="btn red" id="a-ok">Guardar acceso</button></div>`);
+  $('#a-cancel').onclick=closeModal; $('#a-ok').onclick=()=>guardarAcceso(q);
+}
+async function guardarAcceso(q){
+  const user=$('#a-user').value.trim().toLowerCase(), pass=$('#a-pass').value; const err=$('#a-err');
+  if(!user||!pass){ err.textContent='Escribe usuario y contraseña.'; return; }
+  if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
+  err.textContent='Guardando…'; $('#a-ok').disabled=true;
+  try{
     const uid=await crearCuenta(user,pass);
-    await setDoc(doc(db,'conquistadores',uid), {nombre, clase, clubId:SESSION.clubId, consejeroId:consId||null, usuario:user, progreso:{}});
-    closeModal(); toast('Conquistador agregado');
-  }catch(e){ $('#m-ok').disabled=false;
-    err.textContent = e.code==='auth/email-already-in-use' ? 'Ese usuario ya existe, elige otro.' : 'No se pudo agregar. Intenta de nuevo.'; }
+    await updateDoc(doc(db,'conquistadores',q.id),{usuario:user, pass, authUid:uid});
+    closeModal(); toast('Acceso creado');
+  }catch(e){ $('#a-ok').disabled=false; err.textContent=credErr(e); }
 }
 
 function modalConsejero(){
+  const checks=CARTILLAS.clases.map(c=>`<label class="chk-line"><input type="checkbox" value="${c.id}"> <i style="background:${c.color}"></i>${c.nombre} <span class="edadtag">${c.edad} años</span></label>`).join('');
   modal(`<h3>Agregar consejero</h3><div class="body">
     <div class="mfield"><label>Nombre completo</label><input id="m-nombre" placeholder="Nombre del consejero"></div>
+    <div class="mfield"><label>Clase(s) que dirige <span class="hint">marca una o varias</span></label>
+      <div class="chk-grid" id="m-clases">${checks}</div></div>
     <div class="mfield"><label>Usuario</label><input id="m-user" placeholder="usuario"></div>
-    <div class="mfield"><label>Contraseña</label><input id="m-pass" placeholder="contraseña"></div>
+    <div class="mfield"><label>Contraseña <span class="hint">mínimo 6 caracteres</span></label><input id="m-pass" placeholder="contraseña"></div>
     <div class="merr" id="m-err"></div></div>
     <div class="foot"><button class="btn ghost" id="m-cancel">Cancelar</button><button class="btn gold" id="m-ok">Agregar</button></div>`);
   $('#m-cancel').onclick=closeModal; $('#m-ok').onclick=saveConsejero;
 }
 async function saveConsejero(){
   const nombre=$('#m-nombre').value.trim(), user=$('#m-user').value.trim().toLowerCase(), pass=$('#m-pass').value; const err=$('#m-err');
-  if(!nombre||!user||!pass){ err.textContent='Completa todos los campos.'; return; }
-  if(pass.length<4){ err.textContent='La contraseña debe tener al menos 4 caracteres.'; return; }
+  const clases=[...document.querySelectorAll('#m-clases input:checked')].map(i=>i.value);
+  if(!nombre||!user||!pass){ err.textContent='Completa nombre, usuario y contraseña.'; return; }
+  if(!clases.length){ err.textContent='Marca al menos una clase que va a dirigir.'; return; }
+  if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
   err.textContent='Guardando…'; $('#m-ok').disabled=true;
   try{
     const uid=await crearCuenta(user,pass);
-    await setDoc(doc(db,'usuarios',uid), {usuario:user, rol:'consejero', nombre, estado:'activo', clubId:SESSION.clubId});
+    await setDoc(doc(db,'usuarios',uid), {usuario:user, pass, rol:'consejero', nombre, estado:'activo', clubId:SESSION.clubId, clases});
     closeModal(); toast('Consejero agregado');
-  }catch(e){ $('#m-ok').disabled=false;
-    err.textContent = e.code==='auth/email-already-in-use' ? 'Ese usuario ya existe, elige otro.' : 'No se pudo agregar. Intenta de nuevo.'; }
+  }catch(e){ $('#m-ok').disabled=false; err.textContent=credErr(e); }
 }
 
 /* ---- init ---- */
 $('#login-flame').src=ASSETS.ja; $('#login-emblema').src=ASSETS.conq; $('#chrome-flame').src=ASSETS.ja;
+const zsel=$('#rg-zona'); if(zsel) zsel.innerHTML='<option value="">Selecciona tu zona</option>'+ZONAS.map(z=>`<option value="${z}">${z}</option>`).join('');
 const sh=$('#seedhint'); if(sh) sh.innerHTML='Primera vez: entra como <b style="color:#cdd9f0">director de campo</b> con el usuario <b style="color:#cdd9f0">campo</b> y la contraseña que elijas (se creará tu cuenta).';
 
 /* exponer a los onclick del HTML */
