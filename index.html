@@ -333,7 +333,7 @@
       <div class="field"><label>Tipo de club</label>
         <div class="inp"><select id="rg-tipo">
           <option value="conq">Club de Conquistadores</option>
-          <option value="gm">Unidad de Guías Mayores</option>
+          <option value="gm">Guías Mayores</option>
         </select></div></div>
       <div class="field"><label>Distrito</label>
         <div class="inp"><input id="rg-distrito" type="text" placeholder="Distrito del club"></div></div>
@@ -2150,7 +2150,7 @@ function progClase(cid,p){ const c=claseInfo(cid); let t=0,d=0; if(c)c.secciones
 let SESSION=null;
 const state={clubes:[],usuarios:[],conquistadores:[]};
 let unsub=[];
-let CAMPO_TAB='panel', CLUB_TAB='gestion';
+let CAMPO_TAB='panel', CLUB_TAB='gestion', CLUB_SEL=null;
 function clearListeners(){ unsub.forEach(f=>{try{f()}catch(e){}}); unsub=[]; }
 function setupListeners(){
   clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[];
@@ -2450,37 +2450,34 @@ function renderClub(){
 
   const body=$('#club-body');
   const listCard=el('div',{className:'card'});
-  listCard.innerHTML='<h2>Conquistadores por clase <span class="mut">toca un nombre para ver sus secciones</span></h2><div id="club-list"></div>';
+  listCard.innerHTML='<h2>Conquistadores por clase <span class="mut">toca un nombre para evaluar y marcar su cartilla</span></h2><div id="club-list"></div>';
   body.appendChild(listCard);
   const list=listCard.querySelector('#club-list');
   if(!qs.length){ list.innerHTML='<div class="empty">Aún no has agregado conquistadores. Usa "+ Conquistador".</div>'; }
-  else CARTILLAS.clases.forEach(cl=>{
+  else CARTILLAS.clases.filter(c=>c.programa!=='gm').forEach(cl=>{
     const grp=qs.filter(q=>q.clase===cl.id); if(!grp.length) return;
     const g=el('div',{className:'clsgroup'});
     g.innerHTML=`<div class="clsgh"><span class="chip-cls"><i style="background:${cl.color}"></i>${cl.nombre}</span><span class="mut">${grp.length} niños</span></div>`;
     grp.forEach(q=>{
       const p=progClase(q.clase,q.progreso||{});
-      const wrap=el('div'); const btn=el('button',{className:'krow'});
-      const sinAcceso = q.usuario?'':'<span class="noacc" title="Sin acceso">🔑</span>';
-      btn.innerHTML=`<span class="chev">▸</span><span class="kn">${esc(q.nombre)} ${sinAcceso}</span><span class="kbar"><i style="width:${p.pct}%;background:${cl.color}"></i></span><span class="kp">${p.pct}%</span>`;
-      const det=el('div',{className:'kdetail'});
-      const secs=claseInfo(q.clase).secciones;
-      [['comunes','Requisitos comunes',secs.filter(s=>!s.avanzada)],['avanzados','Requisitos avanzados',secs.filter(s=>s.avanzada)]].forEach(([cls,tit,lista])=>{
-        if(!lista.length) return;
-        let gt=0,gd=0; lista.forEach(s=>{const sp=progSec(s,q.progreso||{}); gt+=sp.total; gd+=sp.done;});
-        det.appendChild(el('div',{className:'grphd '+cls,innerHTML:`${tit}<span class="gp">${gt?Math.round(gd/gt*100):0}%</span>`}));
-        lista.forEach(sec=>{ const sp=progSec(sec,q.progreso||{}); det.appendChild(el('div',{className:'secrow',innerHTML:`<span class="sl">${esc(sec.nombre)}</span><span class="sbar"><i style="width:${sp.pct}%;background:${cl.color}"></i></span><span class="sv">${sp.pct}%</span>`})); });
-      });
-      const acts=el('div',{className:'kacts'});
-      const bDel=el('button',{className:'mini rj',textContent:'Eliminar conquistador'});
-      bDel.onclick=()=>eliminarConquistador(q.id, q.nombre);
-      if(!q.usuario){ const bAcc=el('button',{className:'mini acc',textContent:'+ Crear acceso'}); bAcc.onclick=()=>modalAcceso(q); acts.appendChild(bAcc); }
-      acts.appendChild(bDel); det.appendChild(acts);
-      btn.onclick=()=>{ const o=det.classList.toggle('open'); btn.querySelector('.chev').textContent=o?'▾':'▸'; };
-      wrap.appendChild(btn); wrap.appendChild(det); g.appendChild(wrap);
+      const row=el('button',{className:'krow'});
+      row.style.background=q.id===CLUB_SEL?'rgba(214,24,10,.06)':'#fff';
+      const sinAcc=q.usuario?'':'<span class="noacc" title="Sin acceso">🔑</span>';
+      row.innerHTML=`<span class="kn">${esc(q.nombre)} ${sinAcc}</span><span class="kbar"><i style="width:${p.pct}%;background:${cl.color}"></i></span><span class="kp">${p.pct}%</span>`;
+      row.onclick=()=>{ CLUB_SEL=q.id; render(); };
+      g.appendChild(row);
     });
     list.appendChild(g);
   });
+  const sel=qs.find(q=>q.id===CLUB_SEL);
+  if(sel){
+    const acts=el('div',{className:'card gmtoolbar'});
+    const bar=el('div',{className:'kacts'});
+    if(!sel.usuario){ const a=el('button',{className:'mini acc',textContent:'+ Crear acceso'}); a.onclick=()=>modalAcceso(sel); bar.appendChild(a); }
+    const d=el('button',{className:'mini rj',textContent:'Eliminar conquistador'}); d.onclick=()=>eliminarConquistador(sel.id,sel.nombre); bar.appendChild(d);
+    acts.appendChild(bar); body.appendChild(acts);
+    body.appendChild(cartillaCard(sel,true));
+  }
 
   const consCard=el('div',{className:'card'});
   consCard.innerHTML='<h2>Consejeros</h2><div id="club-cons"></div>';
@@ -2725,8 +2722,8 @@ function renderClubGM(){
   let tt=0,dd=0; miembros.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); tt+=p.total; dd+=p.done;});
   const avg=tt?Math.round(dd/tt*100):0;
   v.innerHTML=`
-    <div class="phead"><div><h1>Unidad ${esc(club?club.nombre:'')}</h1><p>${club?`Guías Mayores · Distrito ${esc(club.distrito)} · ${esc(club.zona)}`:''}<br>${miembros.length} guías mayores · ${coords.length} coordinadores</p></div>
-      <span class="rolechip gm">Unidad de Guías Mayores</span>
+    <div class="phead"><div><h1>${esc(club?club.nombre:'')}</h1><p>${club?`Guías Mayores · Distrito ${esc(club.distrito)} · ${esc(club.zona)}`:''}<br>${miembros.length} guías mayores · ${coords.length} coordinadores</p></div>
+      <span class="rolechip gm">Guías Mayores</span>
       <div class="act"><button class="btn blue" id="b-mi"><span class="pl">+</span> Guía Mayor</button>
         <button class="btn ghost" id="b-co"><span class="pl">+</span> Coordinador</button></div></div>
     <div class="kpis">
