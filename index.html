@@ -260,6 +260,21 @@
   #conq-hero .hinfo{position:relative; z-index:1}
   .animo{margin-top:9px; display:inline-block; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); color:#fff; font-weight:600; font-size:12.5px; padding:6px 12px; border-radius:999px}
 
+  /* ---- ranking "lo que más falta" ---- */
+  .credwarn.rank{background:rgba(46,158,91,.1); color:#20603a}
+  .rankrow{display:flex; align-items:center; gap:11px; padding:10px 15px; border-top:1px solid var(--line)}
+  .rankrow:first-child{border-top:none}
+  .rnum{font-family:var(--disp); font-weight:800; font-size:16px; color:var(--ink-soft); width:22px; flex:none; text-align:center}
+  .rtxt{flex:1; min-width:0}
+  .rtxt b{font-size:12.5px; font-weight:600; display:block; line-height:1.32}
+  .rsec{font-family:var(--mono); font-size:9px; color:var(--ink-soft)}
+  .rbar{width:84px; height:8px; border-radius:6px; background:var(--crema-2); overflow:hidden; flex:none}
+  .rbar i{display:block; height:100%; background:var(--ambar); border-radius:6px}
+  .rfalt{font-family:var(--mono); font-size:11px; color:var(--rojo-700); width:70px; text-align:right; flex:none; line-height:1.2}
+  .rfalt b{font-size:15px; display:block}
+  .rfalt small{font-size:9px; color:var(--ink-soft)}
+  @media (max-width:640px){ .rbar{display:none} }
+
   /* ---- Guías Mayores (blanco · amarillo · azul suave) ---- */
   .btn.blue{background:linear-gradient(180deg,#9cc9ee,#4a90d9); color:#07335c}
   .kpi.hl.blue{background:linear-gradient(150deg,#5a9bd4,#2f6fb0)}
@@ -2445,8 +2460,9 @@ function renderClub(){
     </div>
     <div id="club-tabs"></div><div id="club-body"></div>`;
   $('#b-conq').onclick=modalConq; $('#b-cons').onclick=modalConsejero;
-  $('#club-tabs').appendChild(tabBar([['gestion','Gestión y progreso'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
+  $('#club-tabs').appendChild(tabBar([['gestion','Gestión y progreso'],['pendientes','Lo que más falta'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
   if(CLUB_TAB==='cred') return clubCred($('#club-body'));
+  if(CLUB_TAB==='pendientes') return renderPendientes($('#club-body'), state.conquistadores, CARTILLAS.clases.filter(c=>c.programa!=='gm').map(c=>c.id));
 
   const body=$('#club-body');
   const listCard=el('div',{className:'card'});
@@ -2712,6 +2728,48 @@ async function saveConsejero(){
   }catch(e){ $('#m-ok').disabled=false; err.textContent=credErr(e); }
 }
 
+/* ================= RANKING "LO QUE MÁS FALTA" ================= */
+function rankingFaltantes(miembros, claseId){
+  const ci=claseInfo(claseId); const N=miembros.length; const items=[];
+  if(ci) ci.secciones.forEach(sec=>{
+    sec.requisitos.forEach(r=>{
+      if(r.subrequisitos&&r.subrequisitos.length){
+        r.subrequisitos.forEach(s=>{
+          const falt=miembros.filter(m=>!(m.progreso&&m.progreso[s.id])).length;
+          items.push({texto:s.texto, sec:sec.nombre, falt});
+        });
+      } else {
+        const falt=miembros.filter(m=>!(m.progreso&&m.progreso[r.id])).length;
+        items.push({texto:r.texto, sec:sec.nombre, falt});
+      }
+    });
+  });
+  return {N, items: items.filter(x=>x.falt>0).sort((a,b)=>b.falt-a.falt)};
+}
+function renderPendientes(body, miembros, claseIds){
+  const info=el('div',{className:'card'});
+  info.innerHTML='<div class="credwarn rank">📊 Ranking de requisitos pendientes: arriba está lo que MÁS jóvenes tienen sin cumplir. Úsalo para decidir qué dictar o reforzar primero.</div>';
+  body.appendChild(info);
+  let algo=false;
+  claseIds.forEach(cid=>{
+    const grp=miembros.filter(m=>m.clase===cid); if(!grp.length) return;
+    algo=true; const ci=claseInfo(cid); const {N,items}=rankingFaltantes(grp,cid);
+    const card=el('div',{className:'card'});
+    card.innerHTML=`<h2><span class="chip-cls"><i style="background:${ci.color}"></i>${ci.nombre}</span> <span class="mut">${N} inscrito${N===1?'':'s'}</span></h2><div class="ranklist"></div>`;
+    const l=card.querySelector('.ranklist');
+    if(!items.length){ l.innerHTML='<div class="empty">¡Todos al día! No hay requisitos pendientes. 🎉</div>'; }
+    else items.forEach((it,i)=>{ const pct=N?Math.round(it.falt/N*100):0;
+      const row=el('div',{className:'rankrow'});
+      row.innerHTML=`<span class="rnum">${i+1}</span>
+        <span class="rtxt"><b>${esc(it.texto)}</b><span class="rsec">${esc(it.sec)}</span></span>
+        <span class="rbar"><i style="width:${pct}%"></i></span>
+        <span class="rfalt">faltan <b>${it.falt}</b><small>de ${N}</small></span>`;
+      l.appendChild(row); });
+    body.appendChild(card);
+  });
+  if(!algo) body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no hay miembros para analizar.</div>'}));
+}
+
 /* ================= CLUB DE GUÍAS MAYORES ================= */
 let GM_SEL=null;
 function renderClubGM(){
@@ -2733,8 +2791,9 @@ function renderClubGM(){
     </div>
     <div id="club-tabs"></div><div id="club-body"></div>`;
   $('#b-mi').onclick=modalMiembro; $('#b-co').onclick=modalCoordinador;
-  $('#club-tabs').appendChild(tabBar([['gestion','Miembros y progreso'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
+  $('#club-tabs').appendChild(tabBar([['gestion','Miembros y progreso'],['pendientes','Lo que más falta'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
   if(CLUB_TAB==='cred') return clubCredGM($('#club-body'));
+  if(CLUB_TAB==='pendientes') return renderPendientes($('#club-body'), miembros, ['guiamayor']);
   const body=$('#club-body');
   gmMembersEditor(body, miembros, true);
   const cc=el('div',{className:'card'}); cc.innerHTML='<h2>Coordinadores de investidura</h2><div id="gm-cons"></div>';
