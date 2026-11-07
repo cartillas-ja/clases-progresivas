@@ -294,6 +294,8 @@
   .progtab.on{background:linear-gradient(180deg,var(--oro-300,#ffd766),var(--oro)); color:#3a2a00; border-color:var(--oro)}
   .clist{display:block}
   .mapacts{display:flex; gap:8px; padding:0 15px 13px}
+  .card h2{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .h2acts{margin-left:auto; display:inline-flex; gap:6px}
 
   /* ---- Guías Mayores (blanco · amarillo · azul suave) ---- */
   .btn.blue{background:linear-gradient(180deg,#9cc9ee,#4a90d9); color:#07335c}
@@ -375,9 +377,11 @@
       <div class="field"><label>Nombre del club</label>
         <div class="inp"><input id="rg-club" type="text" placeholder="Nombre del club (si aplica)"></div></div>
       <div class="field"><label>Distrito</label>
-        <div class="inp"><input id="rg-distrito" type="text" placeholder="Distrito"></div></div>
+        <div class="inp"><select id="rg-distrito-sel"><option value="">Selecciona tu distrito</option></select></div>
+        <div class="inp" id="rg-distrito-otrawrap" style="display:none;margin-top:6px"><input id="rg-distrito-otra" type="text" placeholder="Escribe tu distrito"></div></div>
       <div class="field"><label>Iglesia</label>
-        <div class="inp"><input id="rg-iglesia" type="text" placeholder="Nombre de la iglesia"></div></div>
+        <div class="inp"><select id="rg-iglesia-sel"><option value="">Selecciona tu iglesia</option></select></div>
+        <div class="inp" id="rg-iglesia-otrawrap" style="display:none;margin-top:6px"><input id="rg-iglesia-otra" type="text" placeholder="Escribe tu iglesia"></div></div>
       <div class="field" id="rg-asist-field" style="display:none"><label>¿Cuántos jóvenes asisten a la Sociedad de Jóvenes?</label>
         <div class="inp"><input id="rg-asist" type="number" min="0" placeholder="N° de jóvenes"></div></div>
       <div class="field"><label>Usuario</label>
@@ -2293,12 +2297,12 @@ function progClase(cid,p){ const c=claseInfo(cid); let t=0,d=0; if(c)c.secciones
 
 /* ---------- estado + listeners en vivo ---------- */
 let SESSION=null;
-const state={clubes:[],usuarios:[],conquistadores:[],iglesias:[],directorio:[]};
+const state={clubes:[],usuarios:[],conquistadores:[],distritos:[],iglesias:[]};
 let unsub=[];
 let CAMPO_TAB='mapa', CLUB_TAB='gestion', CLUB_SEL=null, CAMPO_PROG='conq';
 function clearListeners(){ unsub.forEach(f=>{try{f()}catch(e){}}); unsub=[]; }
 function setupListeners(){
-  clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[]; state.iglesias=[]; state.directorio=[];
+  clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[]; state.distritos=[]; state.iglesias=[];
   const mapDocs=s=>s.docs.map(d=>({id:d.id,...d.data()}));
   const addCol=(q,fn)=>unsub.push(onSnapshot(q, s=>{ fn(mapDocs(s)); render(); }, e=>console.warn(e)));
   const addDoc1=(ref,fn)=>unsub.push(onSnapshot(ref, snap=>{ fn(snap.exists()?[{id:snap.id,...snap.data()}]:[]); render(); }, e=>console.warn(e)));
@@ -2306,6 +2310,8 @@ function setupListeners(){
     addCol(collection(db,'clubes'), r=>state.clubes=r);
     addCol(collection(db,'usuarios'), r=>state.usuarios=r);
     addCol(collection(db,'conquistadores'), r=>state.conquistadores=r);
+    addCol(collection(db,'distritos'), r=>state.distritos=r);
+    addCol(collection(db,'iglesias'), r=>state.iglesias=r);
   } else if(SESSION.rol==='club'){
     const cid=SESSION.clubId;
     addDoc1(doc(db,'clubes',cid), r=>state.clubes=r);
@@ -2377,7 +2383,7 @@ async function doLogin(){
 
 async function doRegister(){
   const nombre=$('#rg-nombre').value.trim(), telefono=$('#rg-tel')?$('#rg-tel').value.trim():'', club=$('#rg-club').value.trim();
-  const distrito=$('#rg-distrito').value.trim(), iglesia=$('#rg-iglesia')?$('#rg-iglesia').value.trim():'';
+  const distrito=regVal('distrito'), iglesia=regVal('iglesia');
   const programa=$('#rg-tipo')?$('#rg-tipo').value:'conq';
   const esSJ = programa==='sj';
   const asistentes = $('#rg-asist')?(parseInt($('#rg-asist').value,10)||0):0;
@@ -2503,31 +2509,50 @@ function renderCampo(){
 }
 
 function campoMapa(body){
-  const clubes=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
+  const aprob=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
+  const infoFor=(distN,iglN)=>{ const cs=aprob.filter(c=>(c.distrito||'')===distN&&(c.iglesia||'')===iglN); const min={}; let club=0,sj=0;
+    cs.forEach(c=>{const pr=clubProg(c); min[pr]=true; if(pr==='sj') sj+=(c.asistentes||0); else club+=state.conquistadores.filter(q=>q.clubId===c.id).length;});
+    return {min,club,sj}; };
   const info=el('div',{className:'card'});
-  info.innerHTML='<div class="credwarn" style="background:rgba(74,144,217,.1);color:#20507e">🗺️ Distritos e iglesias de tu zona. Cada ministerio en <b>color</b> está activo; en <b>gris</b> no. Se arma solo con los registros aprobados.</div>';
+  info.innerHTML='<div class="credwarn" style="background:rgba(74,144,217,.1);color:#20507e">🗺️ Crea tus distritos e iglesias. Cada ministerio se enciende en <b>color</b> cuando alguien se registra en esa iglesia; en <b>gris</b> si aún no. Al registrarse, los directores eligen de esta lista.</div><div class="mapacts"><button class="mini acc" id="add-dist">+ Distrito</button></div>';
   body.appendChild(info);
-  const map={};
-  clubes.forEach(c=>{ const dist=c.distrito||'Sin distrito', igl=c.iglesia||'Sin iglesia';
-    map[dist]=map[dist]||{}; map[dist][igl]=map[dist][igl]||{min:{},club:0,sj:0};
-    const e=map[dist][igl]; const pr=clubProg(c); e.min[pr]=true;
-    if(pr==='sj') e.sj+=(c.asistentes||0);
-    else e.club+=state.conquistadores.filter(q=>q.clubId===c.id).length;
-  });
-  const dists=Object.keys(map).sort();
-  if(!dists.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no hay iglesias registradas. Aparecerán cuando apruebes directores.</div>'})); return; }
-  dists.forEach(dist=>{
+  $('#add-dist').onclick=modalDistrito;
+  if(!state.distritos.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no has creado distritos. Usa "+ Distrito" para empezar.</div>'})); return; }
+  state.distritos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).forEach(dist=>{
+    const igls=state.iglesias.filter(i=>i.distritoId===dist.id).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
     const card=el('div',{className:'card'});
-    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist)}</span></h2><div class="igllist"></div>`;
+    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist.nombre)}</span>
+      <span class="h2acts"><button class="mini acc addigl">+ Iglesia</button> <button class="mini del deldist" title="Eliminar distrito">🗑</button></span></h2><div class="igllist"></div>`;
+    card.querySelector('.addigl').onclick=()=>modalIglesia(dist);
+    card.querySelector('.deldist').onclick=()=>eliminarDistrito(dist);
     const l=card.querySelector('.igllist');
-    Object.keys(map[dist]).sort().forEach(igl=>{
-      const e=map[dist][igl];
-      const chips=MINISTERIOS.map(([k,nm,col])=>{ const on=e.min[k];
-        return `<span class="minchip${on?'':' off'}"${on?` style="background:${col};border-color:${col};color:#fff"`:''}>${nm}</span>`; }).join('');
-      l.insertAdjacentHTML('beforeend', `<div class="iglrow"><div class="iglhd"><b>${esc(igl)}</b><span class="iglnums">En club: <b>${e.club}</b> · Soc. Jóvenes: <b>${e.sj}</b></span></div><div class="minchips">${chips}</div></div>`);
+    if(!igls.length) l.innerHTML='<div class="empty">Sin iglesias. Usa "+ Iglesia".</div>';
+    else igls.forEach(ig=>{ const e=infoFor(dist.nombre, ig.nombre);
+      const chips=MINISTERIOS.map(([k,nm,col])=>{const on=e.min[k];return `<span class="minchip${on?'':' off'}"${on?` style="background:${col};border-color:${col};color:#fff"`:''}>${nm}</span>`;}).join('');
+      const row=el('div',{className:'iglrow'});
+      row.innerHTML=`<div class="iglhd"><b>${esc(ig.nombre)}</b><span class="iglnums">En club: <b>${e.club}</b> · Soc. Jóvenes: <b>${e.sj}</b> <button class="mini del deligl" title="Eliminar iglesia">🗑</button></span></div><div class="minchips">${chips}</div>`;
+      row.querySelector('.deligl').onclick=()=>eliminarIglesia(ig);
+      l.appendChild(row);
     });
     body.appendChild(card);
   });
+}
+function modalDistrito(){
+  modal(`<h3>Agregar distrito</h3><div class="body"><div class="mfield"><label>Nombre del distrito</label><input id="d-nom" placeholder="Ej: Oasis"></div><div class="merr" id="d-err"></div></div><div class="foot"><button class="btn ghost" id="d-cancel">Cancelar</button><button class="btn gold" id="d-ok">Agregar</button></div>`);
+  $('#d-cancel').onclick=closeModal; $('#d-ok').onclick=async()=>{ const nombre=$('#d-nom').value.trim(); if(!nombre){$('#d-err').textContent='Escribe el nombre.';return;} try{ await addDoc(collection(db,'distritos'),{nombre}); closeModal(); toast('Distrito agregado'); }catch(e){ console.error(e); $('#d-err').textContent='No se pudo guardar.'; } };
+}
+function modalIglesia(dist){
+  modal(`<h3>Agregar iglesia</h3><div class="body"><p class="mnote">Distrito: <b>${esc(dist.nombre)}</b></p><div class="mfield"><label>Nombre de la iglesia</label><input id="i-nom" placeholder="Ej: Central"></div><div class="merr" id="i-err"></div></div><div class="foot"><button class="btn ghost" id="i-cancel">Cancelar</button><button class="btn gold" id="i-ok">Agregar</button></div>`);
+  $('#i-cancel').onclick=closeModal; $('#i-ok').onclick=async()=>{ const nombre=$('#i-nom').value.trim(); if(!nombre){$('#i-err').textContent='Escribe el nombre.';return;} try{ await addDoc(collection(db,'iglesias'),{nombre, distritoId:dist.id, distrito:dist.nombre}); closeModal(); toast('Iglesia agregada'); }catch(e){ console.error(e); $('#i-err').textContent='No se pudo guardar.'; } };
+}
+async function eliminarDistrito(dist){
+  const igls=state.iglesias.filter(i=>i.distritoId===dist.id);
+  if(!confirm('¿Eliminar el distrito "'+dist.nombre+'"'+(igls.length?' y sus '+igls.length+' iglesias':'')+'?\n(No borra los clubes ya registrados.)')) return;
+  try{ for(const i of igls) await deleteDoc(doc(db,'iglesias',i.id)); await deleteDoc(doc(db,'distritos',dist.id)); toast('Distrito eliminado'); }catch(e){ console.error(e); toast('No se pudo eliminar.'); }
+}
+async function eliminarIglesia(ig){
+  if(!confirm('¿Eliminar la iglesia "'+ig.nombre+'"?\n(No borra los clubes ya registrados.)')) return;
+  try{ await deleteDoc(doc(db,'iglesias',ig.id)); toast('Iglesia eliminada'); }catch(e){ console.error(e); toast('No se pudo eliminar.'); }
 }
 
 function campoDirectorio(body){
@@ -3157,11 +3182,44 @@ function renderClubSJ(){
   };
 }
 
+/* ---- listas de distrito/iglesia en el registro (se cargan sin iniciar sesión) ---- */
+let REG_DIST=[], REG_IGL=[];
+const OPT_OTRA='<option value="__otra__">Otra… (escribir)</option>';
+function regVal(base){
+  const s=$('#rg-'+base+'-sel');
+  if(!s){ const t=$('#rg-'+base); return t?t.value.trim():''; }
+  if(s.value==='__otra__'){ const o=$('#rg-'+base+'-otra'); return o?o.value.trim():''; }
+  return s.value.trim();
+}
+function poblarIglesias(){
+  const ds=$('#rg-distrito-sel'), is=$('#rg-iglesia-sel'); if(!is) return;
+  const sel=ds?ds.options[ds.selectedIndex]:null; const did=sel?sel.getAttribute('data-id'):null;
+  const ow=$('#rg-distrito-otrawrap'); if(ow) ow.style.display=(ds&&ds.value==='__otra__')?'block':'none';
+  const list=did?REG_IGL.filter(i=>i.distritoId===did):[];
+  is.innerHTML='<option value="">Selecciona tu iglesia</option>'+list.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).map(i=>`<option value="${esc(i.nombre)}">${esc(i.nombre)}</option>`).join('')+OPT_OTRA;
+  const iw=$('#rg-iglesia-otrawrap'); if(iw) iw.style.display='none';
+}
+function poblarRegistro(){
+  const ds=$('#rg-distrito-sel'); if(!ds) return;
+  ds.innerHTML='<option value="">Selecciona tu distrito</option>'+REG_DIST.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).map(d=>`<option value="${esc(d.nombre)}" data-id="${d.id}">${esc(d.nombre)}</option>`).join('')+OPT_OTRA;
+  poblarIglesias();
+}
+async function cargarRegistro(){
+  try{
+    const [ds,is]=await Promise.all([getDocs(collection(db,'distritos')), getDocs(collection(db,'iglesias'))]);
+    REG_DIST=ds.docs.map(d=>({id:d.id,...d.data()})); REG_IGL=is.docs.map(d=>({id:d.id,...d.data()}));
+    poblarRegistro();
+  }catch(e){ console.warn('No se pudieron cargar distritos/iglesias para el registro (revisa reglas de Firestore):', e); poblarRegistro(); }
+}
+
 /* ---- init ---- */
 $('#login-flame').src=ASSETS.ja; $('#login-emblema').src=ASSETS.conq; $('#chrome-flame').src=ASSETS.ja;
 const tsel=$('#rg-tipo'); const afield=$('#rg-asist-field');
 function toggleAsist(){ if(afield) afield.style.display=(tsel&&tsel.value==='sj')?'block':'none'; }
 if(tsel) tsel.addEventListener('change', toggleAsist); toggleAsist();
+const dsel=$('#rg-distrito-sel'); if(dsel) dsel.addEventListener('change', poblarIglesias);
+const isel=$('#rg-iglesia-sel'); if(isel) isel.addEventListener('change', ()=>{ const iw=$('#rg-iglesia-otrawrap'); if(iw) iw.style.display=(isel.value==='__otra__')?'block':'none'; });
+cargarRegistro();
 const sh=$('#seedhint'); if(sh) sh.innerHTML='Primera vez: entra como <b style="color:#cdd9f0">coordinador de zona</b> con el usuario <b style="color:#cdd9f0">campo</b> y la contraseña que elijas (se creará tu cuenta).';
 
 /* exponer a los onclick del HTML */
