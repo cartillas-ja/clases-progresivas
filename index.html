@@ -2487,7 +2487,9 @@ function renderCampo(){
   const v=$('#view');
   const pend=state.usuarios.filter(u=>u.rol==='club'&&u.estado==='pendiente');
   const clubes=state.clubes;
-  const distritos=new Set(); clubes.forEach(c=>distritos.add(c.distrito||'Sin distrito'));
+  const distritos=new Set();
+  state.distritos.forEach(d=>distritos.add(_norm(d.nombre)));
+  clubes.forEach(c=>{ if(c.distrito) distritos.add(_norm(c.distrito)); });
   v.innerHTML=`
     <div class="phead"><div><h1>Coordinación de zona</h1><p>${esc(ZONA)}</p></div>
       <span class="rolechip">Aprueba · observa · administra tu zona</span></div>
@@ -2581,6 +2583,35 @@ function campoMapa(body){
   }
   if(!state.distritos.length && !left.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no has creado distritos. Usa "+ Distrito" para empezar.</div>'})); }
 }
+function modalEditarClub(c){
+  const dopts=state.distritos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).map(d=>`<option value="${esc(d.nombre)}" data-id="${d.id}"${_norm(d.nombre)===_norm(c.distrito)?' selected':''}>${esc(d.nombre)}</option>`).join('');
+  modal(`<h3>Editar club</h3><div class="body">
+    <p class="mnote">Asigna su distrito e iglesia para que aparezca activo en el mapa. No se pierde ningún dato.</p>
+    <div class="mfield"><label>Nombre del club</label><input id="ec-nom" value="${esc(c.nombre||'')}"></div>
+    <div class="mfield"><label>Distrito</label><select id="ec-dist"><option value="">— Selecciona —</option>${dopts}</select></div>
+    <div class="mfield"><label>Iglesia</label><select id="ec-igl"></select>
+      <div class="inp" id="ec-igl-otrawrap" style="display:none;margin-top:6px"><input id="ec-igl-otra" placeholder="Escribe la iglesia"></div></div>
+    <div class="merr" id="ec-err"></div></div>
+    <div class="foot"><button class="btn ghost" id="ec-cancel">Cancelar</button><button class="btn gold" id="ec-ok">Guardar</button></div>`);
+  const toggleOtra=()=>{ const iw=$('#ec-igl-otrawrap'); if(iw) iw.style.display=($('#ec-igl').value==='__otra__')?'block':'none'; };
+  const fillIgl=()=>{ const ds=$('#ec-dist'); const opt=ds.options[ds.selectedIndex]; const did=opt?opt.getAttribute('data-id'):null;
+    const list=did?state.iglesias.filter(i=>i.distritoId===did):[];
+    $('#ec-igl').innerHTML='<option value="">— Selecciona —</option>'+list.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).map(i=>`<option value="${esc(i.nombre)}"${_norm(i.nombre)===_norm(c.iglesia)?' selected':''}>${esc(i.nombre)}</option>`).join('')+'<option value="__otra__">Otra… (escribir)</option>';
+    toggleOtra(); };
+  $('#ec-dist').onchange=fillIgl; $('#ec-igl').onchange=toggleOtra; fillIgl();
+  $('#ec-cancel').onclick=closeModal;
+  $('#ec-ok').onclick=async()=>{
+    const nombre=$('#ec-nom').value.trim(), distrito=$('#ec-dist').value.trim();
+    let iglesia=$('#ec-igl').value; if(iglesia==='__otra__') iglesia=($('#ec-igl-otra').value||'').trim();
+    const err=$('#ec-err');
+    if(!nombre||!distrito||!iglesia){ err.textContent='Completa nombre, distrito e iglesia.'; return; }
+    err.textContent='Guardando…'; $('#ec-ok').disabled=true;
+    try{ await updateDoc(doc(db,'clubes',c.id),{nombre,distrito,iglesia});
+      if(c.directorId){ try{ await updateDoc(doc(db,'usuarios',c.directorId),{distrito,iglesia}); }catch(e){} }
+      closeModal(); toast('Club actualizado');
+    }catch(e){ console.error(e); $('#ec-ok').disabled=false; err.textContent='No se pudo guardar.'; }
+  };
+}
 function modalCambiarDirector(c){
   modal(`<h3>Cambiar director</h3><div class="body">
     <p class="mnote">Club <b>${esc(c.nombre)}</b> (${esc(progLabel(clubProg(c)))}). El nuevo director entrará con estos datos y verá el club con <b>todos sus miembros y avances intactos</b>. El acceso del director anterior dejará de funcionar.</p>
@@ -2672,8 +2703,10 @@ function campoAvance(body){
       const row=el('div',{className:'clubrow'});
       row.innerHTML=`<div class="cinfo"><b>${esc(c.nombre)}</b> ${est}<span>${esc(c.iglesia||'')} · ${qs.length} miembros</span></div>
         <span class="kbar"><i style="width:${pct}%;background:var(--oro)"></i></span><span class="kp">${pct}%</span>
+        <button class="mini ed2">Editar</button>
         <button class="mini cd">Cambiar director</button>
         <button class="mini del" title="Eliminar club">🗑</button>`;
+      row.querySelector('.ed2').onclick=()=>modalEditarClub(c);
       row.querySelector('.cd').onclick=()=>modalCambiarDirector(c);
       row.querySelector('.del').onclick=()=>eliminarClub(c.id,c.nombre);
       l.appendChild(row);
