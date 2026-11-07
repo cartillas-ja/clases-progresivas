@@ -299,6 +299,15 @@
   .disthd{font-size:19px; color:var(--navy-900); border-bottom:2px solid rgba(11,36,82,.14); padding-bottom:9px; margin-bottom:4px}
   .disthd .chip-cls.zona{font-size:18px; letter-spacing:.02em; color:var(--navy-900)}
   .disthd .zdot{width:12px; height:12px; background:var(--rojo); box-shadow:0 0 0 4px rgba(214,24,10,.14)}
+  /* resumen estadístico de la zona */
+  .stats{display:block; padding-bottom:6px}
+  .statrow{display:flex; align-items:center; gap:10px; padding:7px 16px}
+  .statlbl{width:132px; flex:none; font-size:12px; font-weight:600; color:var(--ink)}
+  .statbar{flex:1; height:15px; border-radius:8px; background:var(--crema-2); overflow:hidden}
+  .statbar i{display:block; height:100%; border-radius:8px; transition:width .4s ease}
+  .statval{width:74px; flex:none; text-align:right; font-family:var(--mono); font-size:11px; color:var(--ink-soft)}
+  .statval b{font-size:14px; color:var(--ink)}
+  @media (max-width:640px){ .statlbl{width:94px; font-size:11px} }
 
   /* ---- Guías Mayores (blanco · amarillo · azul suave) ---- */
   .btn.blue{background:linear-gradient(180deg,#9cc9ee,#4a90d9); color:#07335c}
@@ -2489,7 +2498,9 @@ function renderCampo(){
       <div class="kpi hl gold"><div class="n">${pend.length}</div><div class="l">Por aprobar</div></div>
     </div>
     <div id="campo-approvals"></div>
+    <div id="campo-resumen"></div>
     <div id="campo-tabs"></div><div id="campo-body"></div>`;
+  campoResumen($('#campo-resumen'));
   const ap=$('#campo-approvals');
   if(pend.length){
     const solCard=el('div',{className:'card'});
@@ -2513,6 +2524,21 @@ function renderCampo(){
   return campoMapa(body);
 }
 
+function campoResumen(host){
+  const aprob=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
+  const counts={sj:0,avent:0,conq:0,gm:0};
+  aprob.forEach(c=>{const pr=clubProg(c); if(pr==='sj') counts.sj+=(c.asistentes||0); else if(counts[pr]!=null) counts[pr]+=state.conquistadores.filter(q=>q.clubId===c.id).length;});
+  const total=counts.sj+counts.avent+counts.conq+counts.gm;
+  const enClub=counts.avent+counts.conq+counts.gm;
+  const card=el('div',{className:'card'});
+  card.innerHTML=`<h2>Resumen de la zona <span class="mut">${total} jóvenes en total · ${enClub} en clubes · ${counts.sj} en Soc. Jóvenes</span></h2><div class="stats"></div>`;
+  const s=card.querySelector('.stats');
+  if(!total){ s.innerHTML='<div class="empty">Aún no hay datos. Aparecerán cuando registres clubes y sociedades.</div>'; host.appendChild(card); return; }
+  MINISTERIOS.forEach(([k,nm,col])=>{ const n=counts[k]||0; const pct=total?Math.round(n/total*100):0;
+    s.insertAdjacentHTML('beforeend', `<div class="statrow"><span class="statlbl">${nm}</span><span class="statbar"><i style="width:${pct}%;background:${col}"></i></span><span class="statval"><b>${n}</b> · ${pct}%</span></div>`);
+  });
+  host.appendChild(card);
+}
 const _norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();
 function campoMapa(body){
   const aprob=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
@@ -2554,6 +2580,33 @@ function campoMapa(body){
     });
   }
   if(!state.distritos.length && !left.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no has creado distritos. Usa "+ Distrito" para empezar.</div>'})); }
+}
+function modalCambiarDirector(c){
+  modal(`<h3>Cambiar director</h3><div class="body">
+    <p class="mnote">Club <b>${esc(c.nombre)}</b> (${esc(progLabel(clubProg(c)))}). El nuevo director entrará con estos datos y verá el club con <b>todos sus miembros y avances intactos</b>. El acceso del director anterior dejará de funcionar.</p>
+    <div class="mfield"><label>Nombre del nuevo director</label><input id="cd-nom" placeholder="Nombre completo"></div>
+    <div class="mfield"><label>Teléfono / WhatsApp</label><input id="cd-tel" placeholder="número"></div>
+    <div class="mfield"><label>Usuario</label><input id="cd-user" placeholder="usuario nuevo"></div>
+    <div class="mfield"><label>Contraseña <span class="hint">mínimo 6 caracteres</span></label><input id="cd-pass" placeholder="contraseña"></div>
+    <div class="merr" id="cd-err"></div></div>
+    <div class="foot"><button class="btn ghost" id="cd-cancel">Cancelar</button><button class="btn gold" id="cd-ok">Cambiar director</button></div>`);
+  $('#cd-cancel').onclick=closeModal; $('#cd-ok').onclick=()=>reasignarDirector(c);
+}
+async function reasignarDirector(c){
+  const nombre=$('#cd-nom').value.trim(), telefono=$('#cd-tel').value.trim();
+  const user=$('#cd-user').value.trim().toLowerCase(), pass=$('#cd-pass').value; const err=$('#cd-err');
+  if(!nombre||!user||!pass){ err.textContent='Completa nombre, usuario y contraseña.'; return; }
+  if(user==='campo'){ err.textContent='Ese usuario está reservado, elige otro.'; return; }
+  if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
+  err.textContent='Guardando…'; $('#cd-ok').disabled=true;
+  try{
+    const uid=await crearCuenta(user,pass);
+    const extra = clubProg(c)==='sj'?{asistentes:c.asistentes||0}:{};
+    await setDoc(doc(db,'usuarios',uid), {usuario:user, pass, rol:'club', nombre, telefono, estado:'activo', clubId:c.id, programa:clubProg(c), distrito:c.distrito||'', iglesia:c.iglesia||'', ...extra});
+    if(c.directorId){ try{ await deleteDoc(doc(db,'usuarios',c.directorId)); }catch(e){} }
+    await updateDoc(doc(db,'clubes',c.id), {directorId:uid});
+    closeModal(); toast('Director cambiado');
+  }catch(e){ $('#cd-ok').disabled=false; err.textContent=credErr(e); }
 }
 function modalDistrito(){
   modal(`<h3>Agregar distrito</h3><div class="body"><div class="mfield"><label>Nombre del distrito</label><input id="d-nom" placeholder="Ej: Oasis"></div><div class="merr" id="d-err"></div></div><div class="foot"><button class="btn ghost" id="d-cancel">Cancelar</button><button class="btn gold" id="d-ok">Agregar</button></div>`);
@@ -2619,7 +2672,9 @@ function campoAvance(body){
       const row=el('div',{className:'clubrow'});
       row.innerHTML=`<div class="cinfo"><b>${esc(c.nombre)}</b> ${est}<span>${esc(c.iglesia||'')} · ${qs.length} miembros</span></div>
         <span class="kbar"><i style="width:${pct}%;background:var(--oro)"></i></span><span class="kp">${pct}%</span>
+        <button class="mini cd">Cambiar director</button>
         <button class="mini del" title="Eliminar club">🗑</button>`;
+      row.querySelector('.cd').onclick=()=>modalCambiarDirector(c);
       row.querySelector('.del').onclick=()=>eliminarClub(c.id,c.nombre);
       l.appendChild(row);
     });
