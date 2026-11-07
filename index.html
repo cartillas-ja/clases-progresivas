@@ -296,6 +296,9 @@
   .mapacts{display:flex; gap:8px; padding:0 15px 13px}
   .card h2{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
   .h2acts{margin-left:auto; display:inline-flex; gap:6px}
+  .disthd{font-size:19px; color:var(--navy-900); border-bottom:2px solid rgba(11,36,82,.14); padding-bottom:9px; margin-bottom:4px}
+  .disthd .chip-cls.zona{font-size:18px; letter-spacing:.02em; color:var(--navy-900)}
+  .disthd .zdot{width:12px; height:12px; background:var(--rojo); box-shadow:0 0 0 4px rgba(214,24,10,.14)}
 
   /* ---- Guías Mayores (blanco · amarillo · azul suave) ---- */
   .btn.blue{background:linear-gradient(180deg,#9cc9ee,#4a90d9); color:#07335c}
@@ -2278,6 +2281,7 @@ function credErr(e){
 function nombresClases(ids){ return (ids||[]).map(id=>{const c=claseInfo(id);return c?c.nombre:'';}).filter(Boolean).join(', '); }
 function miembroLabel(q){ const ci=claseInfo(q.clase); if(!ci) return ''; if(ci.programa==='gm') return 'Guía Mayor'; if(ci.programa==='avent') return 'Aventurero · '+ci.nombre; return 'Conquistador · '+ci.nombre; }
 const MINISTERIOS=[['sj','Sociedad de Jóvenes','#8e7cc3'],['avent','Aventureros','#e67e22'],['conq','Conquistadores','#D6180A'],['gm','Guías Mayores','#4a90d9']];
+const ZONA='Zona Occidente de Medellín';
 function progLabel(p){ return p==='avent'?'Aventureros':p==='gm'?'Guías Mayores':'Conquistadores'; }
 function clubProg(c){ return (c&&(c.programa||c.tipo))||'conq'; }
 function sesProg(){ return SESSION.programa||SESSION.tipo||'conq'; }
@@ -2451,6 +2455,7 @@ function render(){
   if(SESSION.rol==='conquistador'){ const ci=claseInfo(SESSION.clase); if(ci&&ci.programa==='gm') bc+=' gm-theme'; }
   document.body.className = bc;
   $('#me-role').textContent=rolLabel(SESSION);
+  if(SESSION.rol==='campo'){ const mn=$('#me-name'); if(mn) mn.textContent=ZONA; const ma=$('#me-av'); if(ma) ma.textContent='ZO'; }
   if(SESSION.rol==='campo') return renderCampo();
   if(SESSION.rol==='club'){ const pr=sesProg(); return pr==='gm'?renderClubGM():pr==='sj'?renderClubSJ():renderClub(); }
   if(SESSION.rol==='consejero') return renderConsejero();
@@ -2475,7 +2480,7 @@ function renderCampo(){
   const clubes=state.clubes;
   const distritos=new Set(); clubes.forEach(c=>distritos.add(c.distrito||'Sin distrito'));
   v.innerHTML=`
-    <div class="phead"><div><h1>Coordinación de zona</h1><p>Zona Sur de Urabá</p></div>
+    <div class="phead"><div><h1>Coordinación de zona</h1><p>${esc(ZONA)}</p></div>
       <span class="rolechip">Aprueba · observa · administra tu zona</span></div>
     <div class="kpis">
       <div class="kpi"><div class="n">${distritos.size}</div><div class="l">Distritos</div></div>
@@ -2508,34 +2513,47 @@ function renderCampo(){
   return campoMapa(body);
 }
 
+const _norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'').trim();
 function campoMapa(body){
   const aprob=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
-  const infoFor=(distN,iglN)=>{ const cs=aprob.filter(c=>(c.distrito||'')===distN&&(c.iglesia||'')===iglN); const min={}; let club=0,sj=0;
-    cs.forEach(c=>{const pr=clubProg(c); min[pr]=true; if(pr==='sj') sj+=(c.asistentes||0); else club+=state.conquistadores.filter(q=>q.clubId===c.id).length;});
-    return {min,club,sj}; };
+  const clubsAt=(dN,iN)=>aprob.filter(c=>_norm(c.distrito)===_norm(dN)&&_norm(c.iglesia)===_norm(iN));
+  const chipsFor=cs=>{ const min={}; let club=0,sj=0; cs.forEach(c=>{const pr=clubProg(c); min[pr]=true; if(pr==='sj') sj+=(c.asistentes||0); else club+=state.conquistadores.filter(q=>q.clubId===c.id).length;}); return {min,club,sj}; };
+  const churchRow=(l, display, cs, delFn)=>{ const e=chipsFor(cs);
+    const chips=MINISTERIOS.map(([k,nm,col])=>{const on=e.min[k];return `<span class="minchip${on?'':' off'}"${on?` style="background:${col};border-color:${col};color:#fff"`:''}>${nm}</span>`;}).join('');
+    const row=el('div',{className:'iglrow'});
+    row.innerHTML=`<div class="iglhd"><b>${esc(display)}</b><span class="iglnums">En club: <b>${e.club}</b> · Soc. Jóvenes: <b>${e.sj}</b>${delFn?' <button class="mini del deligl" title="Eliminar iglesia">🗑</button>':''}</span></div><div class="minchips">${chips}</div>`;
+    if(delFn) row.querySelector('.deligl').onclick=delFn; l.appendChild(row); };
   const info=el('div',{className:'card'});
   info.innerHTML='<div class="credwarn" style="background:rgba(74,144,217,.1);color:#20507e">🗺️ Crea tus distritos e iglesias. Cada ministerio se enciende en <b>color</b> cuando alguien se registra en esa iglesia; en <b>gris</b> si aún no. Al registrarse, los directores eligen de esta lista.</div><div class="mapacts"><button class="mini acc" id="add-dist">+ Distrito</button></div>';
   body.appendChild(info);
   $('#add-dist').onclick=modalDistrito;
-  if(!state.distritos.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no has creado distritos. Usa "+ Distrito" para empezar.</div>'})); return; }
+  const matched=new Set();
   state.distritos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).forEach(dist=>{
     const igls=state.iglesias.filter(i=>i.distritoId===dist.id).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
     const card=el('div',{className:'card'});
-    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist.nombre)}</span>
+    card.innerHTML=`<h2 class="disthd"><span class="chip-cls zona"><span class="zdot"></span>${esc(dist.nombre)}</span>
       <span class="h2acts"><button class="mini acc addigl">+ Iglesia</button> <button class="mini del deldist" title="Eliminar distrito">🗑</button></span></h2><div class="igllist"></div>`;
     card.querySelector('.addigl').onclick=()=>modalIglesia(dist);
     card.querySelector('.deldist').onclick=()=>eliminarDistrito(dist);
     const l=card.querySelector('.igllist');
     if(!igls.length) l.innerHTML='<div class="empty">Sin iglesias. Usa "+ Iglesia".</div>';
-    else igls.forEach(ig=>{ const e=infoFor(dist.nombre, ig.nombre);
-      const chips=MINISTERIOS.map(([k,nm,col])=>{const on=e.min[k];return `<span class="minchip${on?'':' off'}"${on?` style="background:${col};border-color:${col};color:#fff"`:''}>${nm}</span>`;}).join('');
-      const row=el('div',{className:'iglrow'});
-      row.innerHTML=`<div class="iglhd"><b>${esc(ig.nombre)}</b><span class="iglnums">En club: <b>${e.club}</b> · Soc. Jóvenes: <b>${e.sj}</b> <button class="mini del deligl" title="Eliminar iglesia">🗑</button></span></div><div class="minchips">${chips}</div>`;
-      row.querySelector('.deligl').onclick=()=>eliminarIglesia(ig);
-      l.appendChild(row);
-    });
+    else igls.forEach(ig=>{ const cs=clubsAt(dist.nombre, ig.nombre); cs.forEach(c=>matched.add(c.id)); churchRow(l, ig.nombre, cs, ()=>eliminarIglesia(ig)); });
     body.appendChild(card);
   });
+  // iglesias detectadas de registros que no coinciden con ninguna creada
+  const left=aprob.filter(c=>!matched.has(c.id));
+  if(left.length){
+    const byD={};
+    left.forEach(c=>{ const dk=_norm(c.distrito||'Sin distrito'); byD[dk]=byD[dk]||{name:c.distrito||'Sin distrito',igl:{}}; const ik=_norm(c.iglesia||'Sin iglesia'); byD[dk].igl[ik]=byD[dk].igl[ik]||{name:c.iglesia||'Sin iglesia',cs:[]}; byD[dk].igl[ik].cs.push(c); });
+    Object.values(byD).forEach(g=>{
+      const card=el('div',{className:'card'});
+      card.innerHTML=`<h2 class="disthd"><span class="chip-cls zona"><span class="zdot"></span>${esc(g.name)}</span> <span class="badge bg-mut">detectada de registros</span></h2><div class="igllist"></div><div class="mut hint" style="padding:0 16px 12px">Ya aparece activa. Si creas este distrito/iglesia con el mismo nombre, queda organizada en tu lista.</div>`;
+      const l=card.querySelector('.igllist');
+      Object.values(g.igl).forEach(x=> churchRow(l, x.name, x.cs, null));
+      body.appendChild(card);
+    });
+  }
+  if(!state.distritos.length && !left.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no has creado distritos. Usa "+ Distrito" para empezar.</div>'})); }
 }
 function modalDistrito(){
   modal(`<h3>Agregar distrito</h3><div class="body"><div class="mfield"><label>Nombre del distrito</label><input id="d-nom" placeholder="Ej: Oasis"></div><div class="merr" id="d-err"></div></div><div class="foot"><button class="btn ghost" id="d-cancel">Cancelar</button><button class="btn gold" id="d-ok">Agregar</button></div>`);
@@ -2590,7 +2608,7 @@ function campoAvance(body){
   dists.forEach(dist=>{
     const grp=clubes.filter(c=>(c.distrito||'Sin distrito')===dist);
     const card=el('div',{className:'card'});
-    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist)}</span></h2><div class="clist"></div>`;
+    card.innerHTML=`<h2 class="disthd"><span class="chip-cls zona"><span class="zdot"></span>${esc(dist)}</span></h2><div class="clist"></div>`;
     const l=card.querySelector('.clist');
     grp.forEach(c=>{
       const qs=state.conquistadores.filter(q=>q.clubId===c.id);
