@@ -275,6 +275,26 @@
   .rfalt small{font-size:9px; color:var(--ink-soft)}
   @media (max-width:640px){ .rbar{display:none} }
 
+  /* ---- coordinador de zona: mapa, directorio, avance ---- */
+  .igllist{display:block}
+  .iglrow{padding:11px 15px; border-top:1px solid var(--line)}
+  .iglrow:first-child{border-top:none}
+  .iglhd{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .iglhd b{font-size:13.5px; font-weight:700}
+  .iglnums{font-family:var(--mono); font-size:10px; color:var(--ink-soft)}
+  .iglnums b{color:var(--ink); font-size:11px}
+  .minchips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+  .minchip{font-size:10.5px; font-weight:600; padding:4px 9px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--ink-soft)}
+  .minchip.off{opacity:.5; background:var(--crema-2); text-decoration:line-through}
+  .dirlist{display:block}
+  .tel{font-family:var(--mono); font-size:11px; color:#1f7a3f; text-decoration:none; white-space:nowrap; flex:none}
+  .tel.mut{color:var(--ink-soft)}
+  .progsel{display:flex; gap:7px; flex-wrap:wrap}
+  .progtab{flex:1; min-width:90px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; font-size:13px; font-weight:600; color:var(--ink-soft)}
+  .progtab.on{background:linear-gradient(180deg,var(--oro-300,#ffd766),var(--oro)); color:#3a2a00; border-color:var(--oro)}
+  .clist{display:block}
+  .mapacts{display:flex; gap:8px; padding:0 15px 13px}
+
   /* ---- Guías Mayores (blanco · amarillo · azul suave) ---- */
   .btn.blue{background:linear-gradient(180deg,#9cc9ee,#4a90d9); color:#07335c}
   .kpi.hl.blue{background:linear-gradient(150deg,#5a9bd4,#2f6fb0)}
@@ -343,26 +363,30 @@
     <div id="form-register" class="form hidden">
       <div class="field"><label>Nombre completo</label>
         <div class="inp"><input id="rg-nombre" type="text" placeholder="Tu nombre"></div></div>
-      <div class="field"><label>Nombre del club</label>
-        <div class="inp"><input id="rg-club" type="text" placeholder="Nombre del club"></div></div>
-      <div class="field"><label>Tipo de club</label>
+      <div class="field"><label>Teléfono / WhatsApp</label>
+        <div class="inp"><input id="rg-tel" type="tel" placeholder="tu número"></div></div>
+      <div class="field"><label>Ministerio</label>
         <div class="inp"><select id="rg-tipo">
-          <option value="conq">Club de Conquistadores</option>
+          <option value="conq">Conquistadores</option>
           <option value="gm">Guías Mayores</option>
+          <option value="avent">Aventureros</option>
+          <option value="sj">Sociedad de Jóvenes</option>
         </select></div></div>
+      <div class="field"><label>Nombre del club</label>
+        <div class="inp"><input id="rg-club" type="text" placeholder="Nombre del club (si aplica)"></div></div>
       <div class="field"><label>Distrito</label>
-        <div class="inp"><input id="rg-distrito" type="text" placeholder="Distrito del club"></div></div>
-      <div class="field"><label>Zona</label>
-        <div class="inp"><select id="rg-zona"></select></div></div>
-      <div class="field"><label>Asociación</label>
-        <div class="inp"><input id="rg-asoc" type="text" placeholder="Asociación / Misión" value="Asociación Centro Occidental"></div></div>
+        <div class="inp"><input id="rg-distrito" type="text" placeholder="Distrito"></div></div>
+      <div class="field"><label>Iglesia</label>
+        <div class="inp"><input id="rg-iglesia" type="text" placeholder="Nombre de la iglesia"></div></div>
+      <div class="field" id="rg-asist-field" style="display:none"><label>¿Cuántos jóvenes asisten a la Sociedad de Jóvenes?</label>
+        <div class="inp"><input id="rg-asist" type="number" min="0" placeholder="N° de jóvenes"></div></div>
       <div class="field"><label>Usuario</label>
         <div class="inp"><input id="rg-user" type="text" placeholder="elige un usuario"></div></div>
       <div class="field"><label>Contraseña <span class="loginhint">mínimo 6 caracteres</span></label>
         <div class="inp"><input id="rg-pass" type="password" placeholder="elige una contraseña"></div></div>
       <button class="btn-main" onclick="doRegister()">Crear mi cuenta</button>
       <div class="err" id="reg-err"></div>
-      <div class="switch">Tu cuenta quedará <b style="color:#fff">pendiente</b> hasta que el director de campo la apruebe. <br><a onclick="showLogin()">← Volver a entrar</a></div>
+      <div class="switch">Tu cuenta quedará <b style="color:#fff">pendiente</b> hasta que el coordinador de zona la apruebe. <br><a onclick="showLogin()">← Volver a entrar</a></div>
     </div>
   </div>
 </section>
@@ -2153,6 +2177,60 @@ const CARTILLAS = {
      ]
     }
    ]
+  },
+  {
+   "id": "avent-corderitos",
+   "nombre": "Corderitos",
+   "color": "#E79FC0",
+   "edad": 4,
+   "orden": 8,
+   "programa": "avent",
+   "secciones": []
+  },
+  {
+   "id": "avent-aves",
+   "nombre": "Aves Madrugadoras",
+   "color": "#5BC0BE",
+   "edad": 5,
+   "orden": 9,
+   "programa": "avent",
+   "secciones": []
+  },
+  {
+   "id": "avent-abejitas",
+   "nombre": "Abejitas",
+   "color": "#F2B705",
+   "edad": 6,
+   "orden": 10,
+   "programa": "avent",
+   "secciones": []
+  },
+  {
+   "id": "avent-rayos",
+   "nombre": "Rayos de Sol",
+   "color": "#F39C12",
+   "edad": 7,
+   "orden": 11,
+   "programa": "avent",
+   "secciones": []
+  },
+  {
+   "id": "avent-constructor",
+   "nombre": "Constructor",
+   "color": "#C0794A",
+   "edad": 8,
+   "orden": 12,
+   "programa": "avent",
+   "secciones": []
+  },
+  {
+   "id": "avent-manos",
+   "nombre": "Manos Ayudadoras",
+   "color": "#4CAF7D",
+   "edad": 9,
+   "orden": 13,
+   "programa": "avent",
+   "secciones": []
   }
  ]
 };
@@ -2194,7 +2272,11 @@ function credErr(e){
   return 'No se pudo guardar. Intenta de nuevo.';
 }
 function nombresClases(ids){ return (ids||[]).map(id=>{const c=claseInfo(id);return c?c.nombre:'';}).filter(Boolean).join(', '); }
-function miembroLabel(q){ const ci=claseInfo(q.clase); if(ci&&ci.programa==='gm') return 'Guía Mayor'; return 'Conquistador · '+(ci?ci.nombre:''); }
+function miembroLabel(q){ const ci=claseInfo(q.clase); if(!ci) return ''; if(ci.programa==='gm') return 'Guía Mayor'; if(ci.programa==='avent') return 'Aventurero · '+ci.nombre; return 'Conquistador · '+ci.nombre; }
+const MINISTERIOS=[['sj','Sociedad de Jóvenes','#8e7cc3'],['avent','Aventureros','#e67e22'],['conq','Conquistadores','#D6180A'],['gm','Guías Mayores','#4a90d9']];
+function progLabel(p){ return p==='avent'?'Aventureros':p==='gm'?'Guías Mayores':'Conquistadores'; }
+function clubProg(c){ return (c&&(c.programa||c.tipo))||'conq'; }
+function sesProg(){ return SESSION.programa||SESSION.tipo||'conq'; }
 function mensajeAnimo(pct){
   if(pct>=100) return '¡Cartilla completa! Listo para tu investidura 🎉';
   if(pct>=76)  return '¡Ya casi lo logras, excelente trabajo! 🌟';
@@ -2211,12 +2293,12 @@ function progClase(cid,p){ const c=claseInfo(cid); let t=0,d=0; if(c)c.secciones
 
 /* ---------- estado + listeners en vivo ---------- */
 let SESSION=null;
-const state={clubes:[],usuarios:[],conquistadores:[]};
+const state={clubes:[],usuarios:[],conquistadores:[],iglesias:[],directorio:[]};
 let unsub=[];
-let CAMPO_TAB='panel', CLUB_TAB='gestion', CLUB_SEL=null;
+let CAMPO_TAB='mapa', CLUB_TAB='gestion', CLUB_SEL=null, CAMPO_PROG='conq';
 function clearListeners(){ unsub.forEach(f=>{try{f()}catch(e){}}); unsub=[]; }
 function setupListeners(){
-  clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[];
+  clearListeners(); state.clubes=[]; state.usuarios=[]; state.conquistadores=[]; state.iglesias=[]; state.directorio=[];
   const mapDocs=s=>s.docs.map(d=>({id:d.id,...d.data()}));
   const addCol=(q,fn)=>unsub.push(onSnapshot(q, s=>{ fn(mapDocs(s)); render(); }, e=>console.warn(e)));
   const addDoc1=(ref,fn)=>unsub.push(onSnapshot(ref, snap=>{ fn(snap.exists()?[{id:snap.id,...snap.data()}]:[]); render(); }, e=>console.warn(e)));
@@ -2253,8 +2335,8 @@ async function afterAuth(fbUser){
   let snap=await getDoc(doc(db,'usuarios',uid));
   if(snap.exists()){
     const p=snap.data();
-    if(p.estado==='pendiente'){ await signOut(auth); loginErr('Tu cuenta está pendiente de aprobación por el director de campo.'); return; }
-    if(p.estado==='rechazado'){ await signOut(auth); loginErr('Tu solicitud fue rechazada. Contacta al director de campo.'); return; }
+    if(p.estado==='pendiente'){ await signOut(auth); loginErr('Tu cuenta está pendiente de aprobación por el coordinador de zona.'); return; }
+    if(p.estado==='rechazado'){ await signOut(auth); loginErr('Tu solicitud fue rechazada. Contacta al coordinador de zona.'); return; }
     SESSION={id:uid, ...p}; setupListeners(); enterApp(); return;
   }
   /* conquistador: primero por id = uid (modelo antiguo), luego por campo authUid (modelo nuevo) */
@@ -2294,12 +2376,16 @@ async function doLogin(){
 }
 
 async function doRegister(){
-  const nombre=$('#rg-nombre').value.trim(), club=$('#rg-club').value.trim();
-  const distrito=$('#rg-distrito').value.trim(), zona=$('#rg-zona').value.trim(), asociacion=$('#rg-asoc').value.trim();
-  const tipo=$('#rg-tipo')?$('#rg-tipo').value:'conq';
+  const nombre=$('#rg-nombre').value.trim(), telefono=$('#rg-tel')?$('#rg-tel').value.trim():'', club=$('#rg-club').value.trim();
+  const distrito=$('#rg-distrito').value.trim(), iglesia=$('#rg-iglesia')?$('#rg-iglesia').value.trim():'';
+  const programa=$('#rg-tipo')?$('#rg-tipo').value:'conq';
+  const esSJ = programa==='sj';
+  const asistentes = $('#rg-asist')?(parseInt($('#rg-asist').value,10)||0):0;
   const user=$('#rg-user').value.trim().toLowerCase(), pass=$('#rg-pass').value;
   const err=$('#reg-err'); err.textContent='';
-  if(!nombre||!club||!distrito||!zona||!asociacion||!tipo||!user||!pass){ err.textContent='Completa todos los campos (incluidos tipo de club y zona).'; return; }
+  const clubName = club || (esSJ?'Sociedad de Jóvenes':'');
+  if(!nombre||!telefono||!distrito||!iglesia||!programa||!user||!pass||(!esSJ&&!club)){ err.textContent='Completa todos los campos.'; return; }
+  if(esSJ && asistentes<=0){ err.textContent='Indica cuántos jóvenes asisten a la Sociedad de Jóvenes.'; return; }
   if(user==='campo'){ err.textContent='Ese usuario está reservado, elige otro.'; return; }
   if(pass.length<6){ err.textContent='La contraseña debe tener mínimo 6 caracteres.'; return; }
   err.textContent='Creando tu cuenta…';
@@ -2307,12 +2393,13 @@ async function doRegister(){
   try{
     const cred=await createUserWithEmailAndPassword(auth, emailOf(user), pass);
     const uid=cred.user.uid, clubId='c_'+uid.slice(0,10);
-    await setDoc(doc(db,'clubes',clubId), {nombre:club, distrito, zona, asociacion, tipo, directorId:uid});
-    await setDoc(doc(db,'usuarios',uid), {usuario:user, pass, rol:'club', nombre, estado:'pendiente', clubId, tipo});
+    const extra = esSJ?{asistentes}:{};
+    await setDoc(doc(db,'clubes',clubId), {nombre:clubName, distrito, iglesia, programa, directorId:uid, ...extra});
+    await setDoc(doc(db,'usuarios',uid), {usuario:user, pass, rol:'club', nombre, telefono, estado:'pendiente', clubId, programa, distrito, iglesia, ...extra});
     await signOut(auth);
     suppressAuth=false;
     showLogin();
-    loginErr('¡Cuenta creada! Queda pendiente de aprobación del director de campo.', true);
+    loginErr('¡Cuenta creada! Queda pendiente de aprobación del coordinador de zona.', true);
   }catch(e){
     suppressAuth=false;
     if(e.code==='auth/email-already-in-use') err.textContent='Ese usuario ya existe, elige otro.';
@@ -2338,8 +2425,8 @@ function showRegister(){ $('#form-login').classList.add('hidden'); $('#form-regi
 function showLogin(){ $('#form-register').classList.add('hidden'); $('#form-login').classList.remove('hidden'); $('#li-user').value=''; $('#li-pass').value=''; }
 
 function rolLabel(u){
-  if(u.rol==='campo') return 'Director de campo';
-  if(u.rol==='club'){ const c=state.clubes.find(x=>x.id===u.clubId); return (u.tipo==='gm'?'Director GM · ':'Director · ')+(c?c.nombre:''); }
+  if(u.rol==='campo') return 'Coordinador de zona';
+  if(u.rol==='club'){ const c=state.clubes.find(x=>x.id===u.clubId); const pr=u.programa||u.tipo||'conq'; const t=pr==='gm'?'Director GM · ':pr==='avent'?'Director Avent. · ':'Director · '; return t+(c?c.nombre:''); }
   if(u.rol==='consejero') return 'Consejero';
   if(u.rol==='coordinador') return 'Coordinador de investidura';
   if(u.rol==='conquistador'){ const ci=claseInfo(u.clase); if(ci&&ci.programa==='gm') return 'Guía Mayor'; return 'Conquistador · '+(ci?ci.nombre:''); }
@@ -2359,7 +2446,7 @@ function render(){
   document.body.className = bc;
   $('#me-role').textContent=rolLabel(SESSION);
   if(SESSION.rol==='campo') return renderCampo();
-  if(SESSION.rol==='club') return (SESSION.tipo==='gm') ? renderClubGM() : renderClub();
+  if(SESSION.rol==='club'){ const pr=sesProg(); return pr==='gm'?renderClubGM():pr==='sj'?renderClubSJ():renderClub(); }
   if(SESSION.rol==='consejero') return renderConsejero();
   if(SESSION.rol==='coordinador') return renderCoordinador();
   if(SESSION.rol==='conquistador') return renderConquistador();
@@ -2380,68 +2467,120 @@ function renderCampo(){
   const v=$('#view');
   const pend=state.usuarios.filter(u=>u.rol==='club'&&u.estado==='pendiente');
   const clubes=state.clubes;
-  const qAll=state.conquistadores;
-  let tt=0,dd=0; qAll.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); tt+=p.total; dd+=p.done;});
-  const avg=tt?Math.round(dd/tt*100):0;
+  const distritos=new Set(); clubes.forEach(c=>distritos.add(c.distrito||'Sin distrito'));
   v.innerHTML=`
-    <div class="phead"><div><h1>Panel del campo</h1><p>Asociación Centro Occidental</p></div>
-      <span class="rolechip">Aprueba directores · observa el progreso · administra</span></div>
+    <div class="phead"><div><h1>Coordinación de zona</h1><p>Zona Sur de Urabá</p></div>
+      <span class="rolechip">Aprueba · observa · administra tu zona</span></div>
     <div class="kpis">
-      <div class="kpi"><div class="n">${clubes.length}</div><div class="l">Clubes</div></div>
-      <div class="kpi"><div class="n">${qAll.length}</div><div class="l">Conquistadores</div></div>
-      <div class="kpi"><div class="n">${avg}<small>%</small></div><div class="l">Avance general</div></div>
-      <div class="kpi hl gold"><div class="n">${pend.length}</div><div class="l">Directores por aprobar</div></div>
+      <div class="kpi"><div class="n">${distritos.size}</div><div class="l">Distritos</div></div>
+      <div class="kpi"><div class="n">${clubes.filter(c=>clubProg(c)!=='sj').length}</div><div class="l">Clubes</div></div>
+      <div class="kpi"><div class="n">${state.conquistadores.length}</div><div class="l">Miembros</div></div>
+      <div class="kpi hl gold"><div class="n">${pend.length}</div><div class="l">Por aprobar</div></div>
     </div>
+    <div id="campo-approvals"></div>
     <div id="campo-tabs"></div><div id="campo-body"></div>`;
-  $('#campo-tabs').appendChild(tabBar([['panel','Clubes y progreso'],['cred','Credenciales']], CAMPO_TAB, k=>{CAMPO_TAB=k; render();}));
-  if(CAMPO_TAB==='cred') return campoCred($('#campo-body'));
-
+  const ap=$('#campo-approvals');
+  if(pend.length){
+    const solCard=el('div',{className:'card'});
+    solCard.innerHTML='<h2>Solicitudes de acceso <span class="mut">directores por aprobar</span></h2><div id="sols"></div>';
+    ap.appendChild(solCard); const sols=solCard.querySelector('#sols');
+    pend.forEach(u=>{
+      const row=el('div',{className:'sol'});
+      row.innerHTML=`<div class="av2">${iniciales(u.nombre)}</div>
+        <div class="info"><b>${esc(u.nombre)}</b><span>${esc(progLabel(u.programa||u.tipo))} · ${esc(u.iglesia||'')} · ${esc(u.distrito||'')}</span></div>
+        <div class="acts"><button class="mini ap">Aprobar</button><button class="mini rj">Rechazar</button></div>`;
+      row.querySelector('.ap').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'activo'}).then(()=>toast('Director aprobado'));
+      row.querySelector('.rj').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'rechazado'}).then(()=>toast('Solicitud rechazada'));
+      sols.appendChild(row);
+    });
+  }
+  $('#campo-tabs').appendChild(tabBar([['mapa','Distritos e iglesias'],['dir','Directorio'],['avance','Avance de cartillas'],['cred','Credenciales']], CAMPO_TAB, k=>{CAMPO_TAB=k; render();}));
   const body=$('#campo-body');
-  // solicitudes
-  const solCard=el('div',{className:'card'});
-  solCard.innerHTML='<h2>Solicitudes de acceso <span class="mut">directores registrados</span></h2><div id="sols"></div>';
-  body.appendChild(solCard);
-  const sols=solCard.querySelector('#sols');
-  if(!pend.length) sols.innerHTML='<div class="empty">No hay solicitudes pendientes.</div>';
-  else pend.forEach(u=>{
-    const c=clubes.find(x=>x.id===u.clubId);
-    const row=el('div',{className:'sol'});
-    row.innerHTML=`<div class="av2">${iniciales(u.nombre)}</div>
-      <div class="info"><b>${esc(u.nombre)}</b><span>${esc(c?c.nombre:'')} · Distrito ${esc(c?c.distrito:'')} · ${esc(c?c.zona:'')}</span></div>
-      <div class="acts"><button class="mini ap">Aprobar</button><button class="mini rj">Rechazar</button></div>`;
-    row.querySelector('.ap').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'activo'}).then(()=>toast('Director aprobado'));
-    row.querySelector('.rj').onclick=()=>updateDoc(doc(db,'usuarios',u.id),{estado:'rechazado'}).then(()=>toast('Solicitud rechazada'));
-    sols.appendChild(row);
-  });
+  if(CAMPO_TAB==='cred') return campoCred(body);
+  if(CAMPO_TAB==='dir') return campoDirectorio(body);
+  if(CAMPO_TAB==='avance') return campoAvance(body);
+  return campoMapa(body);
+}
 
-  // clubes agrupados por zona
-  const card=el('div',{className:'card'});
-  card.innerHTML='<h2>Clubes por zona <span class="mut">avance y administración</span></h2><div id="campo-clubes"></div>';
-  body.appendChild(card);
-  const cc=card.querySelector('#campo-clubes');
-  if(!clubes.length){ cc.innerHTML='<div class="empty">Aún no hay clubes.</div>'; return; }
-  const zonasPresentes = ZONAS.filter(z=>clubes.some(c=>c.zona===z));
-  const otras = [...new Set(clubes.filter(c=>!ZONAS.includes(c.zona)).map(c=>c.zona||'Sin zona'))];
-  [...zonasPresentes, ...otras].forEach(z=>{
-    const grp=clubes.filter(c=>(c.zona||'Sin zona')===z);
-    if(!grp.length) return;
-    const g=el('div',{className:'clsgroup'});
-    g.innerHTML=`<div class="clsgh"><span class="chip-cls zona"><span class="zdot"></span>${esc(z)}</span><span class="mut">${grp.length} club${grp.length>1?'es':''}</span></div>`;
+function campoMapa(body){
+  const clubes=state.clubes.filter(c=>{const u=state.usuarios.find(x=>x.id===c.directorId);return !u||u.estado!=='pendiente';});
+  const info=el('div',{className:'card'});
+  info.innerHTML='<div class="credwarn" style="background:rgba(74,144,217,.1);color:#20507e">🗺️ Distritos e iglesias de tu zona. Cada ministerio en <b>color</b> está activo; en <b>gris</b> no. Se arma solo con los registros aprobados.</div>';
+  body.appendChild(info);
+  const map={};
+  clubes.forEach(c=>{ const dist=c.distrito||'Sin distrito', igl=c.iglesia||'Sin iglesia';
+    map[dist]=map[dist]||{}; map[dist][igl]=map[dist][igl]||{min:{},club:0,sj:0};
+    const e=map[dist][igl]; const pr=clubProg(c); e.min[pr]=true;
+    if(pr==='sj') e.sj+=(c.asistentes||0);
+    else e.club+=state.conquistadores.filter(q=>q.clubId===c.id).length;
+  });
+  const dists=Object.keys(map).sort();
+  if(!dists.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no hay iglesias registradas. Aparecerán cuando apruebes directores.</div>'})); return; }
+  dists.forEach(dist=>{
+    const card=el('div',{className:'card'});
+    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist)}</span></h2><div class="igllist"></div>`;
+    const l=card.querySelector('.igllist');
+    Object.keys(map[dist]).sort().forEach(igl=>{
+      const e=map[dist][igl];
+      const chips=MINISTERIOS.map(([k,nm,col])=>{ const on=e.min[k];
+        return `<span class="minchip${on?'':' off'}"${on?` style="background:${col};border-color:${col};color:#fff"`:''}>${nm}</span>`; }).join('');
+      l.insertAdjacentHTML('beforeend', `<div class="iglrow"><div class="iglhd"><b>${esc(igl)}</b><span class="iglnums">En club: <b>${e.club}</b> · Soc. Jóvenes: <b>${e.sj}</b></span></div><div class="minchips">${chips}</div></div>`);
+    });
+    body.appendChild(card);
+  });
+}
+
+function campoDirectorio(body){
+  const dirs=state.usuarios.filter(u=>u.rol==='club'&&u.estado==='activo')
+    .map(u=>({nombre:u.nombre, ministerio:u.programa||u.tipo||'conq', iglesia:u.iglesia, distrito:u.distrito, telefono:u.telefono}));
+  const info=el('div',{className:'card'});
+  info.innerHTML='<div class="credwarn" style="background:rgba(46,158,91,.1);color:#20603a">📒 Directorio de directores por ministerio. Se llena solo cuando apruebas cada registro.</div>';
+  body.appendChild(info);
+  if(!dirs.length){ body.appendChild(el('div',{className:'card',innerHTML:'<div class="empty">Aún no hay directores aprobados.</div>'})); return; }
+  MINISTERIOS.forEach(([k,nm,col])=>{
+    const grp=dirs.filter(d=>d.ministerio===k); if(!grp.length) return;
+    const card=el('div',{className:'card'});
+    card.innerHTML=`<h2><span class="minchip" style="background:${col};border-color:${col};color:#fff">${nm}</span> <span class="mut">${grp.length}</span></h2><div class="dirlist"></div>`;
+    const l=card.querySelector('.dirlist');
+    grp.forEach(d=>{ const row=el('div',{className:'sol'});
+      const num=String(d.telefono||'').replace(/\D/g,'');
+      const tel=num?`<a href="https://wa.me/${num}" target="_blank" class="tel">📱 ${esc(d.telefono)}</a>`:'<span class="tel mut">sin teléfono</span>';
+      row.innerHTML=`<div class="av2">${iniciales(d.nombre)}</div><div class="info"><b>${esc(d.nombre)}</b><span>${esc(d.iglesia||'')}${d.distrito?' · '+esc(d.distrito):''}</span></div>${tel}`;
+      l.appendChild(row);
+    });
+    body.appendChild(card);
+  });
+}
+
+function campoAvance(body){
+  const sel=el('div',{className:'card'}); sel.innerHTML='<div class="progsel"></div>';
+  body.appendChild(sel); const ps=sel.querySelector('.progsel');
+  [['avent','Aventureros'],['conq','Conquistadores'],['gm','Guías Mayores']].forEach(([k,nm])=>{
+    const b=el('button',{className:'progtab'+(CAMPO_PROG===k?' on':''),textContent:nm});
+    b.onclick=()=>{CAMPO_PROG=k; render();}; ps.appendChild(b);
+  });
+  const clubes=state.clubes.filter(c=>clubProg(c)===CAMPO_PROG);
+  if(!clubes.length){ body.appendChild(el('div',{className:'card',innerHTML:`<div class="empty">No hay clubes de ${progLabel(CAMPO_PROG)} todavía.</div>`})); return; }
+  const dists=[...new Set(clubes.map(c=>c.distrito||'Sin distrito'))].sort();
+  dists.forEach(dist=>{
+    const grp=clubes.filter(c=>(c.distrito||'Sin distrito')===dist);
+    const card=el('div',{className:'card'});
+    card.innerHTML=`<h2><span class="chip-cls zona"><span class="zdot"></span>${esc(dist)}</span></h2><div class="clist"></div>`;
+    const l=card.querySelector('.clist');
     grp.forEach(c=>{
-      const qs=qAll.filter(q=>q.clubId===c.id);
-      let t2=0,d2=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); t2+=p.total; d2+=p.done;});
-      const pct=t2?Math.round(d2/t2*100):0;
+      const qs=state.conquistadores.filter(q=>q.clubId===c.id);
+      let t=0,d2=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); t+=p.total; d2+=p.done;});
+      const pct=t?Math.round(d2/t*100):0;
       const dir=state.usuarios.find(u=>u.id===c.directorId);
       const est=dir&&dir.estado==='pendiente'?'<span class="badge bg-mut">pendiente</span>':'';
-      const tipoBadge = c.tipo==='gm' ? '<span class="badge gm">Guías Mayores</span>' : '<span class="badge conq">Conquistadores</span>';
       const row=el('div',{className:'clubrow'});
-      row.innerHTML=`<div class="cinfo"><b>${esc(c.nombre)}</b> ${tipoBadge} ${est}<span>Distrito ${esc(c.distrito||'—')} · ${qs.length} ${c.tipo==='gm'?'guías m.':'conq.'}</span></div>
+      row.innerHTML=`<div class="cinfo"><b>${esc(c.nombre)}</b> ${est}<span>${esc(c.iglesia||'')} · ${qs.length} miembros</span></div>
         <span class="kbar"><i style="width:${pct}%;background:var(--oro)"></i></span><span class="kp">${pct}%</span>
         <button class="mini del" title="Eliminar club">🗑</button>`;
-      row.querySelector('.del').onclick=()=>eliminarClub(c.id, c.nombre);
-      g.appendChild(row);
+      row.querySelector('.del').onclick=()=>eliminarClub(c.id,c.nombre);
+      l.appendChild(row);
     });
-    cc.appendChild(g);
+    body.appendChild(card);
   });
 }
 
@@ -2456,11 +2595,11 @@ function campoCred(body){
     const cons=state.usuarios.filter(u=>u.rol==='consejero'&&u.clubId===c.id);
     const coords=state.usuarios.filter(u=>u.rol==='coordinador'&&u.clubId===c.id);
     const qs=state.conquistadores.filter(q=>q.clubId===c.id);
-    const esGM=c.tipo==='gm';
+    const pr=clubProg(c);
     const card=el('div',{className:'card'});
-    card.innerHTML=`<h2>${esc(c.nombre)} <span class="mut">${esGM?'Guías Mayores · ':''}${esc(c.zona||'')}</span></h2><div class="credlist"></div>`;
+    card.innerHTML=`<h2>${esc(c.nombre)} <span class="mut">${esc(progLabel(pr))} · ${esc(c.iglesia||c.distrito||'')}</span></h2><div class="credlist"></div>`;
     const list=card.querySelector('.credlist');
-    if(dir) credRow(list, dir.nombre, esGM?'Director GM':'Director', dir.usuario, dir.pass);
+    if(dir) credRow(list, dir.nombre, 'Director · '+progLabel(pr), dir.usuario, dir.pass);
     cons.forEach(u=>credRow(list, u.nombre, 'Consejero · '+(nombresClases(u.clases)||'sin clases'), u.usuario, u.pass));
     coords.forEach(u=>credRow(list, u.nombre, 'Coordinador de investidura', u.usuario, u.pass));
     qs.forEach(q=>credRow(list, q.nombre, miembroLabel(q), q.usuario, q.pass));
@@ -2494,15 +2633,16 @@ function renderClub(){
   const club=state.clubes.find(c=>c.id===SESSION.clubId);
   const qs=state.conquistadores;
   const cons=state.usuarios.filter(u=>u.rol==='consejero');
+  const prog=sesProg(), PL=progLabel(prog), SG=(prog==='avent'?'Aventurero':'Conquistador');
   let tt=0,dd=0; qs.forEach(q=>{const p=progClase(q.clase,q.progreso||{}); tt+=p.total; dd+=p.done;});
   const avg=tt?Math.round(dd/tt*100):0;
   v.innerHTML=`
-    <div class="phead"><div><h1>Club ${esc(club?club.nombre:'')}</h1><p>${club?`Distrito ${esc(club.distrito)} · ${esc(club.zona)} · ${esc(club.asociacion)}`:''}<br>${qs.length} conquistadores · ${cons.length} consejeros</p></div>
+    <div class="phead"><div><h1>Club ${esc(club?club.nombre:'')}</h1><p>${club?`${esc(club.iglesia||'')} · Distrito ${esc(club.distrito||'')}`:''}<br>${qs.length} ${PL.toLowerCase()} · ${cons.length} consejeros</p></div>
       <span class="rolechip">Gestiona y observa</span>
-      <div class="act"><button class="btn red" id="b-conq"><span class="pl">+</span> Conquistador</button>
+      <div class="act"><button class="btn red" id="b-conq"><span class="pl">+</span> ${SG}</button>
         <button class="btn ghost" id="b-cons"><span class="pl">+</span> Consejero</button></div></div>
     <div class="kpis">
-      <div class="kpi hl red"><div class="n">${qs.length}</div><div class="l">Conquistadores</div></div>
+      <div class="kpi hl red"><div class="n">${qs.length}</div><div class="l">${PL}</div></div>
       <div class="kpi"><div class="n">${cons.length}</div><div class="l">Consejeros</div></div>
       <div class="kpi"><div class="n">${avg}<small>%</small></div><div class="l">Avance del club</div></div>
     </div>
@@ -2510,15 +2650,15 @@ function renderClub(){
   $('#b-conq').onclick=modalConq; $('#b-cons').onclick=modalConsejero;
   $('#club-tabs').appendChild(tabBar([['gestion','Gestión y progreso'],['pendientes','Lo que más falta'],['cred','Credenciales']], CLUB_TAB, k=>{CLUB_TAB=k; render();}));
   if(CLUB_TAB==='cred') return clubCred($('#club-body'));
-  if(CLUB_TAB==='pendientes') return renderPendientes($('#club-body'), state.conquistadores, CARTILLAS.clases.filter(c=>c.programa!=='gm').map(c=>c.id));
+  if(CLUB_TAB==='pendientes') return renderPendientes($('#club-body'), state.conquistadores, CARTILLAS.clases.filter(c=>c.programa===prog).map(c=>c.id));
 
   const body=$('#club-body');
   const listCard=el('div',{className:'card'});
-  listCard.innerHTML='<h2>Conquistadores por clase <span class="mut">toca un nombre para evaluar y marcar su cartilla</span></h2><div id="club-list"></div>';
+  listCard.innerHTML=`<h2>${PL} por clase <span class="mut">toca un nombre para evaluar y marcar su cartilla</span></h2><div id="club-list"></div>`;
   body.appendChild(listCard);
   const list=listCard.querySelector('#club-list');
-  if(!qs.length){ list.innerHTML='<div class="empty">Aún no has agregado conquistadores. Usa "+ Conquistador".</div>'; }
-  else CARTILLAS.clases.filter(c=>c.programa!=='gm').forEach(cl=>{
+  if(!qs.length){ list.innerHTML=`<div class="empty">Aún no has agregado ${PL.toLowerCase()}. Usa "+ ${SG}".</div>`; }
+  else CARTILLAS.clases.filter(c=>c.programa===prog).forEach(cl=>{
     const grp=qs.filter(q=>q.clase===cl.id); if(!grp.length) return;
     const g=el('div',{className:'clsgroup'});
     g.innerHTML=`<div class="clsgh"><span class="chip-cls"><i style="background:${cl.color}"></i>${cl.nombre}</span><span class="mut">${grp.length} niños</span></div>`;
@@ -2695,10 +2835,11 @@ function modal(html){ $('#modal-root').innerHTML=`<div class="modal-bg"><div cla
 function closeModal(){ $('#modal-root').innerHTML=''; }
 
 function modalConq(){
-  const opts=CARTILLAS.clases.filter(c=>c.programa!=='gm').map(c=>`<option value="${c.id}">${c.nombre} (${c.edad} años)</option>`).join('');
+  const prog=sesProg(), SG=(prog==='avent'?'aventurero':'conquistador');
+  const opts=CARTILLAS.clases.filter(c=>c.programa===prog).map(c=>`<option value="${c.id}">${c.nombre} (${c.edad} años)</option>`).join('');
   const cons=state.usuarios.filter(u=>u.rol==='consejero');
   const copt='<option value="">— Sin asignar por ahora —</option>'+cons.map(c=>`<option value="${c.id}">${esc(c.nombre)}${c.clases&&c.clases.length?' ('+esc(nombresClases(c.clases))+')':''}</option>`).join('');
-  modal(`<h3>Agregar conquistador</h3><div class="body">
+  modal(`<h3>Agregar ${SG}</h3><div class="body">
     <div class="mfield"><label>Nombre completo</label><input id="m-nombre" placeholder="Nombre del niño/a"></div>
     <div class="mfield"><label>Clase</label><select id="m-clase">${opts}</select></div>
     <div class="mfield"><label>Consejero</label><select id="m-cons">${copt}</select></div>
@@ -2751,7 +2892,8 @@ async function guardarAcceso(q){
 }
 
 function modalConsejero(){
-  const checks=CARTILLAS.clases.map(c=>`<label class="chk-line"><input type="checkbox" value="${c.id}"> <i style="background:${c.color}"></i>${c.nombre} <span class="edadtag">${c.edad} años</span></label>`).join('');
+  const prog=sesProg();
+  const checks=CARTILLAS.clases.filter(c=>c.programa===prog).map(c=>`<label class="chk-line"><input type="checkbox" value="${c.id}"> <i style="background:${c.color}"></i>${c.nombre} <span class="edadtag">${c.edad} años</span></label>`).join('');
   modal(`<h3>Agregar consejero</h3><div class="body">
     <div class="mfield"><label>Nombre completo</label><input id="m-nombre" placeholder="Nombre del consejero"></div>
     <div class="mfield"><label>Clase(s) que dirige <span class="hint">marca una o varias</span></label>
@@ -2995,10 +3137,32 @@ async function eliminarCoordinador(id, nombre){
   catch(e){ console.error(e); toast('No se pudo eliminar. Revisa tu conexión.'); }
 }
 
+/* ================= SOCIEDAD DE JÓVENES ================= */
+function renderClubSJ(){
+  const v=$('#view');
+  const club=state.clubes.find(c=>c.id===SESSION.clubId);
+  const n=(club&&club.asistentes)||SESSION.asistentes||0;
+  v.innerHTML=`<div class="phead"><div><h1>Sociedad de Jóvenes</h1><p>${club?esc(club.iglesia||'')+' · Distrito '+esc(club.distrito||''):''}</p></div>
+    <span class="rolechip" style="background:rgba(142,124,195,.16);color:#6a53b0">Sociedad de Jóvenes</span></div>
+    <div class="kpis"><div class="kpi hl" style="background:linear-gradient(150deg,#9b8bd0,#6a53b0)"><div class="n">${n}</div><div class="l">Jóvenes que asisten</div></div></div>
+    <div class="card"><h2>Tu sociedad</h2>
+      <div class="sol"><div class="av2">${iniciales(SESSION.nombre)}</div><div class="info"><b>${esc(SESSION.nombre||'')}</b><span>Director de Sociedad de Jóvenes</span></div></div>
+      <div style="padding:14px 16px"><button class="btn gold" id="sj-edit">Actualizar N° de jóvenes</button></div>
+    </div>`;
+  $('#sj-edit').onclick=()=>{
+    const val=prompt('¿Cuántos jóvenes asisten actualmente a la Sociedad de Jóvenes?', n);
+    if(val===null) return; const num=parseInt(val,10);
+    if(isNaN(num)||num<0){ toast('Número no válido'); return; }
+    updateDoc(doc(db,'clubes',SESSION.clubId),{asistentes:num}).then(()=>{ SESSION.asistentes=num; toast('Actualizado'); render(); }).catch(()=>toast('No se pudo guardar.'));
+  };
+}
+
 /* ---- init ---- */
 $('#login-flame').src=ASSETS.ja; $('#login-emblema').src=ASSETS.conq; $('#chrome-flame').src=ASSETS.ja;
-const zsel=$('#rg-zona'); if(zsel) zsel.innerHTML='<option value="">Selecciona tu zona</option>'+ZONAS.map(z=>`<option value="${z}">${z}</option>`).join('');
-const sh=$('#seedhint'); if(sh) sh.innerHTML='Primera vez: entra como <b style="color:#cdd9f0">director de campo</b> con el usuario <b style="color:#cdd9f0">campo</b> y la contraseña que elijas (se creará tu cuenta).';
+const tsel=$('#rg-tipo'); const afield=$('#rg-asist-field');
+function toggleAsist(){ if(afield) afield.style.display=(tsel&&tsel.value==='sj')?'block':'none'; }
+if(tsel) tsel.addEventListener('change', toggleAsist); toggleAsist();
+const sh=$('#seedhint'); if(sh) sh.innerHTML='Primera vez: entra como <b style="color:#cdd9f0">coordinador de zona</b> con el usuario <b style="color:#cdd9f0">campo</b> y la contraseña que elijas (se creará tu cuenta).';
 
 /* exponer a los onclick del HTML */
 Object.assign(window,{ doLogin, doRegister, showRegister, showLogin, doLogout });
